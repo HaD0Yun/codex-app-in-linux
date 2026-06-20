@@ -1,5 +1,1 @@
-http://127.0.0.1:5175/ -> HTTP 200
-<!doctype html>
-<html lang="en" data-build="<!-- PROD_BUILD_TAG_HERE -->">
-  <head>
-    <!-- PROD_BASE_TAG_HERE -->
+HTTP 200; bootstrapFailed=false; owlBindingError=false; app routes mounted=true; ready message handled=true; account/read succeeded; loggedInUserPresent=true; browser_use_iab_backend_startup_ready=true

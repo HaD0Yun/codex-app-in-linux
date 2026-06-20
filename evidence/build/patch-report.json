@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-06-20T11:45:39.572Z",
-  "target": "/tmp/tmp.2Q2D0HvwPK/app-extracted/.vite/build/main-CXkxd7xB.js",
+  "generatedAt": "2026-06-20T13:12:12.196Z",
+  "target": "/tmp/tmp.jh0CheRXyP/app-extracted/.vite/build/main-CXkxd7xB.js",
   "mainBundle": "main-CXkxd7xB.js",
   "iconAsset": "app-D0g8sCle.png",
   "desktopName": "codex-desktop.desktop",
@@ -355,6 +355,14 @@
     },
     {
       "name": "linux-multi-instance-bootstrap-lock",
+      "status": "applied",
+      "phase": "extracted-app",
+      "targetSummary": "all-linux",
+      "ciPolicy": "required-upstream",
+      "sourceKind": "core"
+    },
+    {
+      "name": "linux-owl-feature-binding-noop",
       "status": "applied",
       "phase": "extracted-app",
       "targetSummary": "all-linux",

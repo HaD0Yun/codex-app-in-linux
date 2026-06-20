@@ -2,11 +2,11 @@
 
 ## Result
 
-PASS for local non-system proof: the wrapper built a Linux Electron Codex app from the latest observed upstream Codex DMG (`26.616.41845`), and the generated app started on Linux with Electron renderer processes and a loopback webview server.
+PASS for local non-system proof: the wrapper built a Linux Electron Codex app from the latest observed upstream Codex DMG (`26.616.41845`), and the generated app started on Linux without the prior `electron_common_owl_features` startup failure. The current proof shows the renderer mounted, the ready message was handled, the app-server handshake worked, an existing signed-in account was readable, and Browser Use IAB backend startup reached ready state.
 
-The latest DMG required a small local wrapper compatibility patch for upstream drift in tray setup detection and the subagent metadata webview bundle pattern. The compatibility diff is recorded at `evidence/reports/wrapper-latest-compat.patch`.
+The latest DMG required local wrapper compatibility patches for upstream drift in tray setup detection, the subagent metadata webview bundle pattern, and OpenAI's custom `electron_common_owl_features` native binding. The compatibility diff is recorded at `evidence/reports/wrapper-latest-compat.patch`.
 
-Screenshot capture was not rerun in this latest smoke pass; the prior GNOME/Wayland proof attempt was blocked by `org.freedesktop.DBus.Error.AccessDenied` and X root capture failed with `BadMatch`. Functional visual/manual interaction beyond launch remains incomplete in this headless/tool-controlled pass.
+Screenshot capture was not rerun in this latest smoke pass; the prior GNOME/Wayland proof attempt was blocked by `org.freedesktop.DBus.Error.AccessDenied` and X root capture failed with `BadMatch`. Visual screenshot evidence remains incomplete, but startup failure modal absence is backed by current app logs (`bootstrapFailed=false`, `owlBindingError=false`) rather than HTTP-only webview reachability.
 
 ## Source and artifact pinning
 
@@ -46,6 +46,7 @@ No `sudo`, `pkexec`, package manager, service enablement, native package install
   - native modules rebuilt for Electron `42.1.0`
   - Linux Computer Use backend compiled
   - `codex-app/start.sh` generated
+  - `linux-owl-feature-binding-noop` required patch applied
 
 ## Launch / smoke evidence
 
@@ -67,8 +68,15 @@ Observed during launch:
 - Electron zygote/gpu/utility/renderer processes started.
 - Local webview responded on `http://127.0.0.1:5175/` with HTTP 200 and HTML prefix:
   - `<!doctype html><html lang="en" ...>`
+- Current Sentry scope/log evidence showed:
+  - `bootstrapFailed=false`
+  - `owlBindingError=false`
+  - `[startup][renderer] app routes mounted`
+  - `Handled 'ready' message`
+  - `account/read` succeeded for an existing signed-in `chatgpt` user
+  - `browser_use_iab_backend_startup_ready`
 
-This proves the generated Linux app launches its local UI server and Electron runtime on this Linux host.
+This proves the generated Linux app launches its local UI server, imports the main app without the Owl native binding crash, mounts the renderer, and connects to the local Codex app-server on this Linux host.
 
 ## Manual QA status
 
@@ -80,12 +88,14 @@ Completed:
 - Generated app launch smoke.
 - Loopback-only webview server check.
 - Electron process tree check.
-- Required upstream patch validation after local compatibility patch.
+- Required upstream patch validation after local compatibility patches.
+- Existing signed-in account readiness check.
+- Browser Use IAB backend startup readiness check.
 
 Not completed:
 
 - Visual screenshot proof, because GNOME/Wayland denied screenshot over DBus and X root capture failed.
-- Login/sign-in QA.
+- Fresh unauthenticated login/sign-in flow from a clean profile.
 - Disposable project/thread/shell approval QA.
 
 ## Security notes

@@ -1,11 +1,63 @@
 diff --git a/scripts/patch-linux-window-ui.test.js b/scripts/patch-linux-window-ui.test.js
-index 97f37ca..29e5c15 100644
+index 97f37ca..19cbe30 100644
 --- a/scripts/patch-linux-window-ui.test.js
 +++ b/scripts/patch-linux-window-ui.test.js
-@@ -2346,6 +2346,23 @@ test("uses collision-proof Linux tray icon variables when Electron alias is r",
+@@ -110,6 +110,7 @@ const {
+   optionalDriftFromReport,
+   summarizePatchReport,
+ } = require("./lib/patch-report.js");
++const linuxOwlFeatureBindingPatch = require("./patches/core/all-linux/extracted-app/owl-features/patch.js");
+ const {
+   applyBrowserAnnotationScreenshotPatch,
+   applyLocalEnvironmentActionModalDraftPatch,
+@@ -235,6 +236,27 @@ test("automation schedule asset patch updates workspace-root bundle", () => {
+     fs.rmSync(tempRoot, { recursive: true, force: true });
+   }
+ });
++test("Linux Owl feature binding patch falls back on stock Electron", () => {
++  const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "codex-owl-feature-binding-"));
++  try {
++    const buildDir = path.join(tempRoot, ".vite", "build");
++    fs.mkdirSync(buildDir, { recursive: true });
++    const bundlePath = path.join(buildDir, "workspace-root-drop-handler-test.js");
++    fs.writeFileSync(
++      bundlePath,
++      "function Qe(){let e=process._linkedBinding;if(typeof e!=`function`)throw Error(`Owl feature binding is unavailable`);return Ge.parse(e.call(process,`electron_common_owl_features`))}",
++      "utf8",
++    );
++
++    assert.deepEqual(linuxOwlFeatureBindingPatch.apply(tempRoot), { matched: 1, changed: 1 });
++    const patched = fs.readFileSync(bundlePath, "utf8");
++    assert.match(patched, /process\.platform===`linux`\)return\{isOwlFeatureEnabled:\(\)=>!1\}/);
++    assert.match(patched, /electron_common_owl_features/);
++    assert.deepEqual(linuxOwlFeatureBindingPatch.apply(tempRoot), { matched: 1, changed: 0 });
++  } finally {
++    fs.rmSync(tempRoot, { recursive: true, force: true });
++  }
++});
+
+ test("automation schedule asset patch updates current webview automation bundle", () => {
+   const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "codex-automation-schedule-current-"));
+@@ -642,6 +664,7 @@ test("default core patch descriptors are grouped and unique", () => {
+     "linux-native-titlebar",
+     "linux-menu",
+     "linux-multi-instance-bootstrap-lock",
++    "linux-owl-feature-binding-noop",
+     "linux-set-icon",
+     "linux-resize-repaint",
+     "linux-opaque-background",
+@@ -718,6 +741,7 @@ test("default core patch descriptors are grouped and unique", () => {
+     "linux-opaque-background",
+     "linux-avatar-overlay-mouse-passthrough",
+     "linux-tray",
++    "linux-owl-feature-binding-noop",
+   ]) {
+     assert.equal(
+       descriptors.find((descriptor) => descriptor.id === id)?.ciPolicy,
+@@ -2346,6 +2370,23 @@ test("uses collision-proof Linux tray icon variables when Electron alias is r",
    );
  });
- 
+
 +test("preserves latest templated tray icons and running icon factories", () => {
 +  const iconPathExpression = "process.resourcesPath+`/../content/webview/assets/app-test.png`";
 +  const source = [
@@ -44,7 +96,7 @@ index caac435..e57c973 100644
 --- a/scripts/patches/main-process/tray.js
 +++ b/scripts/patches/main-process/tray.js
 @@ -27,7 +27,7 @@ function isTrayFactoryFunction(source, functionName) {
- 
+
  function findDynamicTraySetup(source) {
    const setupRegex =
 -    /let ([A-Za-z_$][\w$]*)=async\(\)=>\{[A-Za-z_$][\w$]*=!0;try\{await ([A-Za-z_$][\w$]*)\(\{buildFlavor:/g;

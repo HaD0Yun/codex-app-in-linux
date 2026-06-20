@@ -1,49 +1,48 @@
 {
-  "processGroup": 204889,
   "processes": [
     {
-      "pid": 204889,
-      "cmdline": "/bin/bash /home/yun/tmp/codex-linux-app-proof/upstream/codex-desktop-linux/codex-app/start.sh"
+      "pid": 276624,
+      "cmdline": "/bin/bash /home/yun/tmp/codex-linux-app-proof/upstream/codex-desktop-linux/codex-app/start.sh "
     },
     {
-      "pid": 205829,
-      "cmdline": "python3 /home/yun/tmp/codex-linux-app-proof/upstream/codex-desktop-linux/codex-app/.codex-linux/webview-server.py 5175 --bind 127.0.0.1"
+      "pid": 277531,
+      "cmdline": "python3 /home/yun/tmp/codex-linux-app-proof/upstream/codex-desktop-linux/codex-app/.codex-linux/webview-server.py 5175 --bind 127.0.0.1 "
     },
     {
-      "pid": 205872,
-      "cmdline": "/bin/bash /home/yun/tmp/codex-linux-app-proof/upstream/codex-desktop-linux/codex-app/start.sh"
+      "pid": 277684,
+      "cmdline": "/home/yun/tmp/codex-linux-app-proof/upstream/codex-desktop-linux/codex-app/electron --no-sandbox --class=codex-desktop --app-id=codex-desktop --disable-dev-shm-usage --disable-gpu-sandbox --disable-gpu-compositing --ozone-platform-hint=auto --force-renderer-accessibility "
     },
     {
-      "pid": 205987,
-      "cmdline": "/home/yun/tmp/codex-linux-app-proof/upstream/codex-desktop-linux/codex-app/electron --no-sandbox --class=codex-desktop --app-id=codex-desktop --disable-dev-shm-usage --disable-gpu-sandbox --disable-gpu-compositing --ozone-platform-hint=auto --force-renderer-accessibility"
+      "pid": 277691,
+      "cmdline": "/home/yun/tmp/codex-linux-app-proof/upstream/codex-desktop-linux/codex-app/electron --type=zygote --no-zygote-sandbox --no-sandbox "
     },
     {
-      "pid": 205999,
-      "cmdline": "/home/yun/tmp/codex-linux-app-proof/upstream/codex-desktop-linux/codex-app/electron --type=zygote --no-zygote-sandbox --no-sandbox"
+      "pid": 277692,
+      "cmdline": "/home/yun/tmp/codex-linux-app-proof/upstream/codex-desktop-linux/codex-app/electron --type=zygote --no-sandbox "
     },
     {
-      "pid": 206000,
-      "cmdline": "/home/yun/tmp/codex-linux-app-proof/upstream/codex-desktop-linux/codex-app/electron --type=zygote --no-sandbox"
+      "pid": 277734,
+      "cmdline": "/home/yun/tmp/codex-linux-app-proof/upstream/codex-desktop-linux/codex-app/chrome_crashpad_handler --monitor-self-annotation=ptype=crashpad-handler --no-rate-limit --database=/home/yun/.config/Codex/Crashpad --url=https://f.a.k/e --annotation=_productName=Codex --annotation=_version=26.616.41845 --annotation=lsb-release=Ubuntu 24.04.4 LTS --annotation=plat=Linux --annotation=prod=Electron --annotation=ver=42.1.0 --initial-client-fd=47 --shared-client-connection "
     },
     {
-      "pid": 206110,
-      "cmdline": "/home/yun/tmp/codex-linux-app-proof/upstream/codex-desktop-linux/codex-app/electron --type=gpu-process --disable-gpu-sandbox --no-sandbox --disable-dev-shm-usage --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=206053 --enable-crash-reporter=ea5d38e7-9730-4e39-b98e-406b8681fc02,no_channel --user-data-dir=/tmp/codex-latest-smoke-state/xdg-config/Codex --gpu-preferences=UAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAAAQAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAYAAAAAAAAABg"
+      "pid": 277764,
+      "cmdline": "/home/yun/tmp/codex-linux-app-proof/upstream/codex-desktop-linux/codex-app/electron --type=gpu-process --disable-gpu-sandbox --no-sandbox --disable-dev-shm-usage --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=277734 --enable-crash-reporter=a53bcd9b-21bf-4a1a-93e0-37f04dc5f9aa,no_channel --user-data-dir=/home/yun/.config/Codex --gpu-preferences=UAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAAAQAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAYAAAAAAAAABgAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAgAAAAAAAAA --shared-files --field-trial-handle=3,i,8776756361955160250,9878661616880241485,262144 --enable-features=DocumentPolicyIncludeJSCallStacksInCrashReports,PdfUseShowSaveFilePicker --disable-features=DropInputEventsWhilePaintHolding,LocalNetworkAccessChecks,ScreenAIOCREnabled,SpareRendererForSitePerProcess,TraceSiteInstanceGetProcessCreation --variations-seed-version --pseudonymization-salt-handle=7,i,1790365176283689335,377164584121245181,4 --trace-process-track-uuid=3190708988185955192 "
     },
     {
-      "pid": 206117,
-      "cmdline": "/home/yun/tmp/codex-linux-app-proof/upstream/codex-desktop-linux/codex-app/electron --type=utility --utility-sub-type=network.mojom.NetworkService --lang=en-US --service-sandbox-type=none --no-sandbox --disable-dev-shm-usage --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=206053 --enable-crash-reporter=ea5d38e7-9730-4e39-b98e-406b8681fc02,no_channel --user-data-dir=/tmp/codex-latest-smoke-state/xdg-config/Codex --standard-schemes=app --secure-schemes=app,sentry-ipc --bypasscsp-"
+      "pid": 277774,
+      "cmdline": "/home/yun/tmp/codex-linux-app-proof/upstream/codex-desktop-linux/codex-app/electron --type=utility --utility-sub-type=network.mojom.NetworkService --lang=en-US --service-sandbox-type=none --no-sandbox --disable-dev-shm-usage --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=277734 --enable-crash-reporter=a53bcd9b-21bf-4a1a-93e0-37f04dc5f9aa,no_channel --user-data-dir=/home/yun/.config/Codex --standard-schemes=app --secure-schemes=app,sentry-ipc --bypasscsp-schemes=sentry-ipc --cors-schemes=sentry-ipc --fetch-schemes=app,sentry-ipc --streaming-schemes=app --shared-files=v8_context_snapshot_data:100 --field-trial-handle=3,i,8776756361955160250,9878661616880241485,262144 --enable-features=DocumentPolicyIncludeJSCallStacksInCrashReports,PdfUseShowSaveFilePicker --disable-features=DropInputEventsWhilePaintHolding,LocalNetworkAccessChecks,ScreenAIOCREnabled,SpareRendererForSitePerProcess,TraceSiteInstanceGetProcessCreation --variations-seed-version --pseudonymization-salt-handle=7,i,1790365176283689335,377164584121245181,4 --trace-process-track-uuid=3190708989122997041 "
     },
     {
-      "pid": 206188,
-      "cmdline": "node /home/yun/.npm-global/bin/codex app-server --analytics-default-enabled"
+      "pid": 277837,
+      "cmdline": "node /home/yun/.npm-global/bin/codex app-server --analytics-default-enabled "
     },
     {
-      "pid": 206195,
-      "cmdline": "/home/yun/.npm-global/lib/node_modules/@openai/codex/node_modules/@openai/codex-linux-x64/vendor/x86_64-unknown-linux-musl/bin/codex app-server --analytics-default-enabled"
+      "pid": 277844,
+      "cmdline": "/home/yun/.npm-global/lib/node_modules/@openai/codex/node_modules/@openai/codex-linux-x64/vendor/x86_64-unknown-linux-musl/bin/codex app-server --analytics-default-enabled "
     },
     {
-      "pid": 206843,
-      "cmdline": "sleep 0.1"
+      "pid": 278053,
+      "cmdline": "/home/yun/tmp/codex-linux-app-proof/upstream/codex-desktop-linux/codex-app/electron --type=renderer --crashpad-handler-pid=277734 --enable-crash-reporter=a53bcd9b-21bf-4a1a-93e0-37f04dc5f9aa,no_channel --user-data-dir=/home/yun/.config/Codex --standard-schemes=app --secure-schemes=app,sentry-ipc --bypasscsp-schemes=sentry-ipc --cors-schemes=sentry-ipc --fetch-schemes=app,sentry-ipc --streaming-schemes=app --app-path=/home/yun/tmp/codex-linux-app-proof/upstream/codex-desktop-linux/codex-app/resources/app.asar --enable-sandbox --no-sandbox --disable-dev-shm-usage --ozone-platform=wayland --disable-gpu-compositing --lang=en-US --num-raster-threads=4 --enable-main-frame-before-activation --renderer-client-id=4 --time-ticks-at-unix-epoch=-1781907350210852 --launch-time-ticks=53841473862 --shared-files=v8_context_snapshot_data:100 --field-trial-handle=3,i,8776756361955160250,9878661616880241485,262144 --enable-features=DocumentPolicyIncludeJSCallStacksInCrashReports,PdfUseShowSaveFilePicker --disable-features=DropInputEventsWhilePaintHolding,LocalNetworkAccessChecks,ScreenAIOCREnabled,SpareRendererForSitePerProcess,TraceSiteInstanceGetProcessCreation --variations-seed-version --pseudonymization-salt-handle=7,i,1790365176283689335,377164584121245181,4 --trace-process-track-uuid=3190708990060038890 "
     }
   ]
 }

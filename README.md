@@ -28,17 +28,24 @@ Tested on Ubuntu 24.04.4 LTS / GNOME Wayland / x64.
 | Check | Result |
 | --- | --- |
 | Local wrapper build | Passed |
-| Generated Electron app launch | Passed |
+| Generated Electron app launch | Passed; startup failure modal absent after `linux-owl-feature-binding-noop` |
 | Webview server | Passed on `127.0.0.1:5175` |
 | Electron process tree | Passed |
-| Codex CLI app-server handshake | Not rerun in latest smoke |
+| Codex CLI app-server handshake | Passed |
+| Login/account readiness | Passed for existing signed-in user state |
 | Native install / updater / service | Not used |
-| Login + project/thread manual QA | Still recommended |
+| Project/thread/shell approval manual QA | Still recommended |
 
 Smoke result (latest, 2026-06-20):
 
 ```text
 http://127.0.0.1:5175/ -> HTTP 200
+bootstrapFailed=false
+owlBindingError=false
+app routes mounted=true
+ready message handled=true
+account/read succeeded
+browser_use_iab_backend_startup_ready=true
 ```
 
 ## Reproduce safely
@@ -72,7 +79,7 @@ PY
 
 | Field | Value |
 | --- | --- |
-| Wrapper commit | `9125911c8347c35177dfc76e2f5bce2b8b2e41d4` + local latest-DMG compatibility patch |
+| Wrapper commit | `9125911c8347c35177dfc76e2f5bce2b8b2e41d4` + local latest-DMG compatibility patches |
 | Wrapper version | `0.8.2` |
 | Codex app version | `26.616.41845` |
 | Electron version | `42.1.0` |

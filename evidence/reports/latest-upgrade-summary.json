@@ -1,5 +1,5 @@
 {
-  "status": "passed-local-build-and-smoke",
+  "status": "passed-local-build-and-gui-bootstrap-smoke",
   "latestAppVersion": "26.616.41845",
   "latestDmgSha256": "7de4cce5ec6e39478b9f0630e2b9257aadd1d02dd6a0fdc00c2ecdf0f536022d",
   "latestDmgSizeBytes": 520180841,
@@ -7,7 +7,7 @@
   "wrapperCommit": "9125911c8347c35177dfc76e2f5bce2b8b2e41d4",
   "wrapperDirty": true,
   "wrapperLocalCompatPatch": "evidence/reports/wrapper-latest-compat.patch",
-  "testCoverage": "node --test scripts/patch-linux-window-ui.test.js (276 pass)",
+  "testCoverage": "node --test scripts/patch-linux-window-ui.test.js (277 pass)",
   "deniedNativeSystemPaths": [
     "sudo",
     "pkexec",
@@ -18,5 +18,7 @@
     "service enablement"
   ],
   "smoke": "evidence/gui/webview-smoke-result.txt",
-  "processEvidence": "evidence/gui/process-evidence.txt"
+  "processEvidence": "evidence/gui/process-evidence.txt",
+  "startupFix": "linux-owl-feature-binding-noop shims electron_common_owl_features on stock Linux Electron",
+  "guiBootstrapEvidence": "evidence/gui/codex-app-latest-launch-exit.txt"
 }

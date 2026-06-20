@@ -1,14 +1,15 @@
 {
-  "pid": 204889,
-  "startedAt": "2026-06-20T11:46:50Z",
-  "webview": {
-    "url": "http://127.0.0.1:5175/",
-    "status": 200,
-    "prefix": "<!doctype html>\n<html lang=\"en\" data-build=\"<!-- PROD_BUILD_TAG_HERE -->\">\n  <head>\n    <!-- PROD_BASE_TAG_HERE -->\n    "
-  },
-  "electronSeen": true,
-  "appServerSeen": true,
-  "error": null,
-  "exitCodeAfterTerminate": 143,
-  "finishedAt": "2026-06-20T11:47:04Z"
+  "status": "passed-gui-bootstrap-login-ready",
+  "httpStatus": 200,
+  "bootstrapFailed": false,
+  "owlBindingError": false,
+  "appRoutesMounted": true,
+  "readyMessageHandled": true,
+  "accountReadSucceeded": true,
+  "loggedInUserPresent": true,
+  "browserUseAvailable": true,
+  "browserUseBackendReady": true,
+  "processCount": 11,
+  "checkedAt": "2026-06-20T13:14:21Z",
+  "note": "Validated after linux-owl-feature-binding-noop patch. Prior HTTP-only smoke was insufficient because the app could show a startup failure modal while the webview server returned 200."
 }
