@@ -1,0 +1,13 @@
+[package]
+edition.workspace = true
+license.workspace = true
+name = "codex-provider-studio"
+version.workspace = true
+
+[lib]
+doctest = false
+name = "codex_provider_studio"
+path = "src/lib.rs"
+
+[lints]
+workspace = true

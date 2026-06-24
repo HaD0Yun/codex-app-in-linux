@@ -1,0 +1,126 @@
+diff --git a/linux-features/provider-studio/feature.json b/linux-features/provider-studio/feature.json
+new file mode 100644
+index 0000000..0cbc232
+--- /dev/null
++++ b/linux-features/provider-studio/feature.json
+@@ -0,0 +1,9 @@
++{
++  "id": "provider-studio",
++  "title": "Provider Studio",
++  "description": "Disabled Linux-side launcher and entrypoint scaffold for future provider studio integration.",
++  "defaultEnabled": false,
++  "entrypoints": {
++    "patches": "./patch.js"
++  }
++}
+diff --git a/linux-features/provider-studio/README.md b/linux-features/provider-studio/README.md
+new file mode 100644
+index 0000000..7d51885
+--- /dev/null
++++ b/linux-features/provider-studio/README.md
+@@ -0,0 +1,27 @@
++# Provider Studio
++
++Opt-in Linux-side launcher and entrypoint scaffold for future Provider Studio
++integration.
++
++This feature intentionally does not own provider behavior. Provider discovery,
++configuration, presets, health checks, and model runtime behavior belong to
++later Provider Studio work outside this Linux feature scaffold.
++
++Enable it locally with:
++
++```json
++{
++  "enabled": [
++    "provider-studio"
++  ]
++}
++```
++
++Run the feature tests with:
++
++```bash
++node --test linux-features/provider-studio/test.js
++```
++
++Wave 1 does not add Settings UI patches, launcher behavior, runtime hooks,
++packaging hooks, staged resources, or hashed/minified bundle patches.
+diff --git a/linux-features/provider-studio/patch.js b/linux-features/provider-studio/patch.js
+new file mode 100644
+index 0000000..ebf323b
+--- /dev/null
++++ b/linux-features/provider-studio/patch.js
+@@ -0,0 +1,5 @@
++"use strict";
++
++module.exports = {
++  patches: [],
++};
+diff --git a/linux-features/provider-studio/test.js b/linux-features/provider-studio/test.js
+new file mode 100644
+index 0000000..7839261
+--- /dev/null
++++ b/linux-features/provider-studio/test.js
+@@ -0,0 +1,61 @@
++#!/usr/bin/env node
++"use strict";
++
++const assert = require("node:assert/strict");
++const fs = require("node:fs");
++const os = require("node:os");
++const path = require("node:path");
++const test = require("node:test");
++const { patches } = require("./patch.js");
++const {
++  discoverLinuxFeatureManifests,
++  enabledLinuxFeatureIds,
++  loadLinuxFeatureMainBundlePatches,
++  loadLinuxFeaturePatchDescriptors,
++} = require("../../scripts/lib/linux-features.js");
++
++function withTempFeatureConfig(enabled, fn) {
++  const originalConfig = process.env.CODEX_LINUX_FEATURES_CONFIG;
++  const root = path.resolve(__dirname, "..");
++  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "codex-provider-studio-feature-test-"));
++  process.env.CODEX_LINUX_FEATURES_CONFIG = path.join(tempDir, "features.json");
++  try {
++    fs.writeFileSync(process.env.CODEX_LINUX_FEATURES_CONFIG, JSON.stringify({ enabled }, null, 2));
++    return fn(root);
++  } finally {
++    if (originalConfig == null) {
++      delete process.env.CODEX_LINUX_FEATURES_CONFIG;
++    } else {
++      process.env.CODEX_LINUX_FEATURES_CONFIG = originalConfig;
++    }
++    fs.rmSync(tempDir, { recursive: true, force: true });
++  }
++}
++
++test("provider-studio feature stays disabled until listed in features.json", () => {
++  withTempFeatureConfig([], (root) => {
++    assert.deepEqual(enabledLinuxFeatureIds({ featuresRoot: root }), []);
++    assert.deepEqual(loadLinuxFeaturePatchDescriptors({ featuresRoot: root }), []);
++    assert.deepEqual(loadLinuxFeatureMainBundlePatches({ featuresRoot: root }), []);
++  });
++});
++
++test("provider-studio manifest normalizes defaultEnabled to false", () => {
++  const root = path.resolve(__dirname, "..");
++  const feature = discoverLinuxFeatureManifests({ featuresRoot: root })
++    .find((candidate) => candidate.id === "provider-studio");
++
++  assert.ok(feature);
++  assert.equal(feature.manifest.defaultEnabled, false);
++  assert.equal(feature.manifest.entrypoints.patches, "./patch.js");
++});
++
++test("provider-studio enabled descriptor loading is fail-soft", () => {
++  assert.deepEqual(patches, []);
++
++  withTempFeatureConfig(["provider-studio"], (root) => {
++    assert.deepEqual(enabledLinuxFeatureIds({ featuresRoot: root }), ["provider-studio"]);
++    assert.deepEqual(loadLinuxFeaturePatchDescriptors({ featuresRoot: root }), []);
++    assert.deepEqual(loadLinuxFeatureMainBundlePatches({ featuresRoot: root }), []);
++  });
++});

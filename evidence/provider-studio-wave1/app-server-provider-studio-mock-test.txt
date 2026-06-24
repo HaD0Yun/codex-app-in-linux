@@ -1,0 +1,18 @@
+surface: app-server provider_studio_mock regression
+invocation: cd work/codex-repo && just test -p codex-app-server provider_studio_mock
+started_at: 2026-06-24T20:23:41Z
+RUST_MIN_STACK=8388608 NEXTEST_PROFILE=local cargo nextest run --no-fail-fast "$@"
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.47s
+────────────
+ Nextest run ID e1bb3452-5625-443b-bc7f-71e92b4062c8 with nextest profile: local
+    Starting 6 tests across 5 binaries (916 tests skipped)
+        PASS [   0.094s] (1/6) codex-app-server::all suite::v2::provider_studio_mock::provider_studio_mock_returns_responses_404_when_configured
+        PASS [   0.094s] (2/6) codex-app-server::all suite::v2::provider_studio_mock::provider_studio_mock_returns_not_found_when_models_endpoint_missing
+        PASS [   0.094s] (3/6) codex-app-server::all suite::v2::provider_studio_mock::provider_studio_mock_serves_healthy_models_when_requested
+        PASS [   0.094s] (4/6) codex-app-server::all suite::v2::provider_studio_mock::provider_studio_mock_returns_auth_required_401_when_configured
+        PASS [   0.056s] (5/6) codex-app-server::all suite::v2::provider_studio_mock::provider_studio_mock_streams_tool_call_when_requested
+        PASS [   0.056s] (6/6) codex-app-server::all suite::v2::provider_studio_mock::provider_studio_mock_streams_assistant_message_when_requested
+────────────
+     Summary [   0.153s] 6 tests run: 6 passed, 916 skipped
+exit_status: 0
+ended_at: 2026-06-24T20:23:43Z

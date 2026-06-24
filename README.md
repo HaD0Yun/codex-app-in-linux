@@ -10,6 +10,7 @@
 
 <p align="center">
   <a href="reports/final-validation.md">Validation report</a> ·
+  <a href="reports/provider-studio-wave1.md">Provider Studio Wave 1</a> ·
   <a href="evidence/build/build-info.json">Build info</a> ·
   <a href="evidence/gui/webview-smoke-result.txt">Smoke test</a>
 </p>
@@ -104,6 +105,8 @@ reports/worker-*-wrapper-audit.md        Audit notes
 evidence/build/build-info.json           Generated app metadata
 evidence/build/patch-report.json         Wrapper patch report
 evidence/reports/wrapper-latest-compat.patch Local wrapper compatibility diff
+evidence/provider-studio-wave1/        Provider Studio Wave 1 scaffold package
+reports/provider-studio-wave1.md       Provider Studio Wave 1 result
 evidence/reports/latest-upgrade-summary.json Latest upgrade summary
 evidence/gui/process-evidence.txt        Electron/webview process evidence
 evidence/gui/webview-smoke-result.txt    HTTP 200 webview smoke result

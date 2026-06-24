@@ -1,0 +1,11 @@
+✔ provider-studio feature stays disabled until listed in features.json (9.24725ms)
+✔ provider-studio manifest normalizes defaultEnabled to false (1.118584ms)
+✔ provider-studio enabled descriptor loading is fail-soft (1.8425ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 43.820791

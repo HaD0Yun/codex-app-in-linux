@@ -1,0 +1,151 @@
+{
+  "codeReview": {
+    "by": "lazycodex-code-reviewer",
+    "recommendation": "APPROVE",
+    "codeQualityStatus": "CLEAR",
+    "reportPath": ".omo/evidence/final-code-quality-recheck-code-review.md",
+    "evidence": "Final code-quality recheck passed after replacing tautological test and non-empty evidence artifacts.",
+    "blockers": []
+  },
+  "manualQa": {
+    "by": "lazycodex-qa-executor",
+    "status": "passed",
+    "evidence": "Rust crate, Linux feature, app-server mock fixture, disabled-feature regression, formatter, diff, and Bazel lock checks passed with artifact-backed evidence.",
+    "surfaceEvidence": [
+      {
+        "id": "surface-rust-crate-test",
+        "criterionRef": "C001",
+        "surface": "cli",
+        "invocation": "just test -p codex-provider-studio",
+        "verdict": "passed",
+        "artifactRefs": [
+          "artifact-rust-crate-test"
+        ]
+      },
+      {
+        "id": "surface-linux-feature-test",
+        "criterionRef": "C002",
+        "surface": "cli",
+        "invocation": "node --test linux-features/provider-studio/test.js",
+        "verdict": "passed",
+        "artifactRefs": [
+          "artifact-linux-feature-test"
+        ]
+      },
+      {
+        "id": "surface-app-server-mock-test",
+        "criterionRef": "Task3",
+        "surface": "cli",
+        "invocation": "just test -p codex-app-server provider_studio_mock",
+        "verdict": "passed",
+        "artifactRefs": [
+          "artifact-app-server-mock-test"
+        ]
+      },
+      {
+        "id": "surface-scope-diff-check",
+        "criterionRef": "FinalGate",
+        "surface": "cli",
+        "invocation": "git diff --check and feature config absence checks",
+        "verdict": "passed",
+        "artifactRefs": [
+          "artifact-scope-diff-check"
+        ]
+      }
+    ],
+    "adversarialCases": [
+      {
+        "id": "adv-no-features-json",
+        "criterionRef": "C002",
+        "scenario": "provider-studio accidentally enabled by committed linux-features/features.json",
+        "expectedBehavior": "features.json is absent and provider-studio manifest remains defaultEnabled false",
+        "verdict": "passed",
+        "artifactRefs": [
+          "artifact-linux-feature-static"
+        ]
+      },
+      {
+        "id": "adv-bazel-lock-drift",
+        "criterionRef": "FinalGate",
+        "scenario": "Cargo workspace registration requires Bazel lock update",
+        "expectedBehavior": "just bazel-lock-update runs under Bazel 9.0.0 and MODULE.bazel.lock has no diff",
+        "verdict": "passed",
+        "artifactRefs": [
+          "artifact-bazel-lock-update"
+        ]
+      }
+    ],
+    "artifactRefs": [
+      {
+        "id": "artifact-rust-crate-test",
+        "kind": "cli-transcript",
+        "description": "codex-provider-studio nextest run passed.",
+        "path": ".omo/evidence/task-1-green-test-final.txt"
+      },
+      {
+        "id": "artifact-linux-feature-test",
+        "kind": "cli-transcript",
+        "description": "provider-studio Linux feature node tests passed.",
+        "path": ".omo/evidence/task-2-green-node-test.txt"
+      },
+      {
+        "id": "artifact-app-server-mock-test",
+        "kind": "cli-transcript",
+        "description": "app-server provider_studio_mock tests passed.",
+        "path": ".omo/evidence/task-3-green-provider-studio-mock-final.txt"
+      },
+      {
+        "id": "artifact-scope-diff-check",
+        "kind": "log",
+        "description": "Final scope, diff-check, and features.json absence checks passed.",
+        "path": ".omo/evidence/final-scope-and-diff-check.txt"
+      },
+      {
+        "id": "artifact-linux-feature-static",
+        "kind": "log",
+        "description": "Static check confirms provider-studio defaultEnabled false and no features.json.",
+        "path": ".omo/evidence/provider-studio-wave-1/linux-provider-studio-disabled-static.txt"
+      },
+      {
+        "id": "artifact-bazel-lock-update",
+        "kind": "log",
+        "description": "Bazel lock update executed with no MODULE.bazel.lock diff.",
+        "path": ".omo/evidence/f2-bazel-lock-update-final.txt"
+      }
+    ]
+  },
+  "gateReview": {
+    "by": "lazycodex-gate-reviewer",
+    "recommendation": "APPROVE",
+    "reportPath": ".omo/evidence/provider-studio-wave1-gate-review.md",
+    "evidence": "Goal/constraint gate, security gate, context mining gate, and final code-quality recheck passed with blockers empty.",
+    "blockers": []
+  },
+  "iteration": {
+    "fullRerun": true,
+    "status": "passed",
+    "rerunCommands": [
+      "just fmt",
+      "just test -p codex-provider-studio",
+      "cargo clippy -p codex-provider-studio --all-targets -- -D warnings",
+      "node --test linux-features/provider-studio/test.js",
+      "just test -p codex-app-server provider_studio_mock",
+      "just bazel-lock-update"
+    ],
+    "evidence": "Final focused reruns and gate reviews passed after fixing evidence gaps and the weak scaffold test."
+  },
+  "criteriaCoverage": {
+    "totalCriteria": 3,
+    "passCount": 3,
+    "originalIntent": "User asked to execute the first real project improvement wave for Codex Provider Studio under ulw-loop discipline.",
+    "desiredOutcome": "Wave 1 foundations exist without product behavior: Rust crate scaffold, disabled Linux feature scaffold, and test-only mock-provider fixtures.",
+    "userOutcomeReview": "All C001-C003 criteria passed, review lanes passed, no features.json or real provider calls were introduced, and the work remains uncommitted pending user approval.",
+    "adversarialClassesCovered": [
+      "missing_artifact",
+      "accidental_feature_enablement",
+      "bazel_lock_drift",
+      "test_slop",
+      "scope_creep"
+    ]
+  }
+}

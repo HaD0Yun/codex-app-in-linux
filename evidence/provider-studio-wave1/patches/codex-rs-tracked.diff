@@ -1,0 +1,67 @@
+diff --git a/codex-rs/Cargo.lock b/codex-rs/Cargo.lock
+index 3324fbd..94d32e4 100644
+--- a/codex-rs/Cargo.lock
++++ b/codex-rs/Cargo.lock
+@@ -3689,6 +3689,10 @@ dependencies = [
+  "wildmatch",
+ ]
+ 
++[[package]]
++name = "codex-provider-studio"
++version = "0.0.0"
++
+ [[package]]
+ name = "codex-realtime-webrtc"
+ version = "0.0.0"
+diff --git a/codex-rs/Cargo.toml b/codex-rs/Cargo.toml
+index 2bc8ac3..69278a8 100644
+--- a/codex-rs/Cargo.toml
++++ b/codex-rs/Cargo.toml
+@@ -73,6 +73,7 @@ members = [
+     "network-proxy",
+     "ollama",
+     "process-hardening",
++    "provider-studio",
+     "protocol",
+     "realtime-webrtc",
+     "prompts",
+@@ -209,6 +210,7 @@ codex-otel = { path = "otel" }
+ codex-plugin = { path = "plugin" }
+ codex-model-provider = { path = "model-provider" }
+ codex-process-hardening = { path = "process-hardening" }
++codex-provider-studio = { path = "provider-studio" }
+ codex-protocol = { path = "protocol" }
+ codex-prompts = { path = "prompts" }
+ codex-responses-api-proxy = { path = "responses-api-proxy" }
+diff --git a/codex-rs/app-server/tests/common/lib.rs b/codex-rs/app-server/tests/common/lib.rs
+index 76c4c85..3236658 100644
+--- a/codex-rs/app-server/tests/common/lib.rs
++++ b/codex-rs/app-server/tests/common/lib.rs
+@@ -5,6 +5,7 @@ mod auth_fixtures;
+ mod config;
+ mod mock_model_server;
+ mod models_cache;
++mod provider_studio_mock;
+ mod responses;
+ mod rollout;
+ mod test_app_server;
+@@ -31,6 +32,7 @@ pub use mock_model_server::create_mock_responses_server_sequence;
+ pub use mock_model_server::create_mock_responses_server_sequence_unchecked;
+ pub use models_cache::write_models_cache;
+ pub use models_cache::write_models_cache_with_models;
++pub use provider_studio_mock::ProviderStudioMock;
+ pub use responses::create_apply_patch_sse_response;
+ pub use responses::create_exec_command_sse_response;
+ pub use responses::create_final_assistant_message_sse_response;
+diff --git a/codex-rs/app-server/tests/suite/v2/mod.rs b/codex-rs/app-server/tests/suite/v2/mod.rs
+index bbd9952..d729325 100644
+--- a/codex-rs/app-server/tests/suite/v2/mod.rs
++++ b/codex-rs/app-server/tests/suite/v2/mod.rs
+@@ -44,6 +44,7 @@ mod plugin_read;
+ mod plugin_share;
+ mod plugin_uninstall;
+ mod process_exec;
++mod provider_studio_mock;
+ mod rate_limit_reset_credits;
+ mod rate_limits;
+ mod realtime_conversation;

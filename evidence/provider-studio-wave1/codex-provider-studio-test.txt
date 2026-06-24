@@ -1,0 +1,13 @@
+surface: Rust workspace crate test/discoverability
+invocation: cd work/codex-repo && . "$HOME/.cargo/env" && export PATH="$HOME/.local/bin:$PATH" && just test -p codex-provider-studio
+started_at: 2026-06-24T20:23:29Z
+RUST_MIN_STACK=8388608 NEXTEST_PROFILE=local cargo nextest run --no-fail-fast "$@"
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.17s
+────────────
+ Nextest run ID 752f3548-cddb-4025-a80a-ed861bfa2428 with nextest profile: local
+    Starting 1 test across 1 binary
+        PASS [   0.006s] (1/1) codex-provider-studio tests::wave_1_status_types_are_public_contract
+────────────
+     Summary [   0.007s] 1 test run: 1 passed, 0 skipped
+exit_status: 0
+ended_at: 2026-06-24T20:23:30Z

@@ -1,0 +1,396 @@
+diff --git a/codex-rs/provider-studio/BUILD.bazel b/codex-rs/provider-studio/BUILD.bazel
+new file mode 100644
+index 0000000..d76cdce
+--- /dev/null
++++ b/codex-rs/provider-studio/BUILD.bazel
+@@ -0,0 +1,6 @@
++load("//:defs.bzl", "codex_rust_crate")
++
++codex_rust_crate(
++    name = "provider-studio",
++    crate_name = "codex_provider_studio",
++)
+diff --git a/codex-rs/provider-studio/Cargo.toml b/codex-rs/provider-studio/Cargo.toml
+new file mode 100644
+index 0000000..590cd5b
+--- /dev/null
++++ b/codex-rs/provider-studio/Cargo.toml
+@@ -0,0 +1,13 @@
++[package]
++edition.workspace = true
++license.workspace = true
++name = "codex-provider-studio"
++version.workspace = true
++
++[lib]
++doctest = false
++name = "codex_provider_studio"
++path = "src/lib.rs"
++
++[lints]
++workspace = true
+diff --git a/codex-rs/provider-studio/README.md b/codex-rs/provider-studio/README.md
+new file mode 100644
+index 0000000..32988d1
+--- /dev/null
++++ b/codex-rs/provider-studio/README.md
+@@ -0,0 +1,23 @@
++# Codex Provider Studio
++
++This crate is the Wave 1 scaffold for future provider setup, diagnostics, and reporting contracts.
++It intentionally contains no provider behavior, config mutation, server endpoints, CLI integration, or UI.
++
++## Stable surfaces
++
++- The Cargo package is `codex-provider-studio`.
++- The Rust library crate name is `codex_provider_studio`.
++- Public items exported from `src/lib.rs` are the only stable Rust surface in Wave 1.
++
++## Unstable surfaces
++
++- Module layout under `src/` is private implementation detail unless re-exported by `src/lib.rs`.
++- Placeholder contract fields and enum variants may change before behavior is implemented.
++- Any future server, CLI, config, doctor, or UI integration remains outside this scaffold.
++
++## Wave 1 non-goals
++
++- No provider presets or provider selection behavior.
++- No config writes, restore flows, or migration logic.
++- No doctor probes, network calls, or external provider requests.
++- No app-server endpoints, CLI commands, UI assets, or `codex-core` changes.
+diff --git a/codex-rs/provider-studio/src/config_plan.rs b/codex-rs/provider-studio/src/config_plan.rs
+new file mode 100644
+index 0000000..a0c3e74
+--- /dev/null
++++ b/codex-rs/provider-studio/src/config_plan.rs
+@@ -0,0 +1,6 @@
++/// Readiness of the future provider config planning surface.
++#[derive(Debug, Clone, Copy, PartialEq, Eq)]
++pub enum ConfigPlanStatus {
++    /// Config writes and restore flows are intentionally absent in Wave 1.
++    ScaffoldOnly,
++}
+diff --git a/codex-rs/provider-studio/src/doctor.rs b/codex-rs/provider-studio/src/doctor.rs
+new file mode 100644
+index 0000000..0f1620f
+--- /dev/null
++++ b/codex-rs/provider-studio/src/doctor.rs
+@@ -0,0 +1,6 @@
++/// Readiness of the future provider doctor surface.
++#[derive(Debug, Clone, Copy, PartialEq, Eq)]
++pub enum DoctorStatus {
++    /// Doctor probes and network checks are intentionally absent in Wave 1.
++    ScaffoldOnly,
++}
+diff --git a/codex-rs/provider-studio/src/lib.rs b/codex-rs/provider-studio/src/lib.rs
+new file mode 100644
+index 0000000..fdb2af0
+--- /dev/null
++++ b/codex-rs/provider-studio/src/lib.rs
+@@ -0,0 +1,21 @@
++//! Typed scaffold for future Codex Provider Studio behavior.
++//!
++//! Wave 1 exports small contract types only. Provider behavior, config writes,
++//! server endpoints, CLI integration, and UI integration are intentionally out
++//! of scope.
++
++mod config_plan;
++mod doctor;
++mod presets;
++mod report;
++mod server_contract;
++
++pub use config_plan::ConfigPlanStatus;
++pub use doctor::DoctorStatus;
++pub use presets::PresetCatalogStatus;
++pub use report::ReportStatus;
++pub use server_contract::ServerContractStatus;
++
++#[cfg(test)]
++#[path = "lib_tests.rs"]
++mod tests;
+diff --git a/codex-rs/provider-studio/src/lib_tests.rs b/codex-rs/provider-studio/src/lib_tests.rs
+new file mode 100644
+index 0000000..aafa62d
+--- /dev/null
++++ b/codex-rs/provider-studio/src/lib_tests.rs
+@@ -0,0 +1,21 @@
++use super::*;
++
++#[test]
++fn wave_1_status_types_are_public_contract() {
++    let status_names = [
++        status_name(PresetCatalogStatus::ScaffoldOnly),
++        status_name(ConfigPlanStatus::ScaffoldOnly),
++        status_name(DoctorStatus::ScaffoldOnly),
++        status_name(ReportStatus::ScaffoldOnly),
++        status_name(ServerContractStatus::ScaffoldOnly),
++    ];
++
++    assert_eq!(status_names, ["ScaffoldOnly"; 5]);
++}
++
++fn status_name<T>(status: T) -> String
++where
++    T: Copy + Eq + std::fmt::Debug,
++{
++    format!("{status:?}")
++}
+diff --git a/codex-rs/provider-studio/src/presets.rs b/codex-rs/provider-studio/src/presets.rs
+new file mode 100644
+index 0000000..7afa40b
+--- /dev/null
++++ b/codex-rs/provider-studio/src/presets.rs
+@@ -0,0 +1,6 @@
++/// Readiness of the future provider preset catalog.
++#[derive(Debug, Clone, Copy, PartialEq, Eq)]
++pub enum PresetCatalogStatus {
++    /// Preset behavior is intentionally absent in the Wave 1 scaffold.
++    ScaffoldOnly,
++}
+diff --git a/codex-rs/provider-studio/src/report.rs b/codex-rs/provider-studio/src/report.rs
+new file mode 100644
+index 0000000..d4e6e76
+--- /dev/null
++++ b/codex-rs/provider-studio/src/report.rs
+@@ -0,0 +1,6 @@
++/// Readiness of the future provider report surface.
++#[derive(Debug, Clone, Copy, PartialEq, Eq)]
++pub enum ReportStatus {
++    /// Report generation is intentionally absent in the Wave 1 scaffold.
++    ScaffoldOnly,
++}
+diff --git a/codex-rs/provider-studio/src/server_contract.rs b/codex-rs/provider-studio/src/server_contract.rs
+new file mode 100644
+index 0000000..ad73670
+--- /dev/null
++++ b/codex-rs/provider-studio/src/server_contract.rs
+@@ -0,0 +1,6 @@
++/// Readiness of the future app-server contract surface.
++#[derive(Debug, Clone, Copy, PartialEq, Eq)]
++pub enum ServerContractStatus {
++    /// Server endpoints are intentionally absent in the Wave 1 scaffold.
++    ScaffoldOnly,
++}
+diff --git a/codex-rs/app-server/tests/common/provider_studio_mock.rs b/codex-rs/app-server/tests/common/provider_studio_mock.rs
+new file mode 100644
+index 0000000..0bbf867
+--- /dev/null
++++ b/codex-rs/app-server/tests/common/provider_studio_mock.rs
+@@ -0,0 +1,114 @@
++use core_test_support::responses;
++use serde_json::json;
++use wiremock::Mock;
++use wiremock::MockServer;
++use wiremock::ResponseTemplate;
++use wiremock::matchers::method;
++use wiremock::matchers::path;
++
++pub struct ProviderStudioMock {
++    server: MockServer,
++}
++
++impl ProviderStudioMock {
++    pub async fn healthy_models() -> Self {
++        let provider = Self::start().await;
++        Mock::given(method("GET"))
++            .and(path("/v1/models"))
++            .respond_with(ResponseTemplate::new(200).set_body_json(json!({
++                "object": "list",
++                "data": [{
++                    "id": "provider-studio-model",
++                    "object": "model",
++                    "created": 1_700_000_000_i64,
++                    "owned_by": "provider-studio-test"
++                }]
++            })))
++            .mount(&provider.server)
++            .await;
++        provider
++    }
++
++    pub async fn missing_models() -> Self {
++        Self::start().await
++    }
++
++    pub async fn responses_404() -> Self {
++        Self::responses_response(ResponseTemplate::new(404).set_body_json(json!({
++            "error": {
++                "message": "fixture responses endpoint missing",
++                "type": "not_found_error"
++            }
++        })))
++        .await
++    }
++
++    pub async fn streaming_assistant(message: &str) -> Self {
++        let body = responses::sse(vec![
++            responses::ev_response_created("provider-studio-resp-1"),
++            responses::ev_assistant_message("provider-studio-msg-1", message),
++            responses::ev_completed("provider-studio-resp-1"),
++        ]);
++        Self::responses_response(responses::sse_response(body)).await
++    }
++
++    pub async fn streaming_tool_call() -> Self {
++        let body = responses::sse(vec![
++            responses::ev_response_created("provider-studio-resp-1"),
++            responses::ev_function_call(
++                "provider-studio-call-1",
++                "provider_studio_mock_tool",
++                r#"{"fixture":true}"#,
++            ),
++            responses::ev_completed("provider-studio-resp-1"),
++        ]);
++        Self::responses_response(responses::sse_response(body)).await
++    }
++
++    pub async fn auth_required_401() -> Self {
++        let provider = Self::start().await;
++        let response = ResponseTemplate::new(401)
++            .insert_header("www-authenticate", "Bearer")
++            .set_body_json(json!({
++                "error": {
++                    "message": "missing provider studio test token",
++                    "type": "authentication_error"
++                }
++            }));
++        Mock::given(method("GET"))
++            .and(path("/v1/models"))
++            .respond_with(response.clone())
++            .mount(&provider.server)
++            .await;
++        Mock::given(method("POST"))
++            .and(path("/v1/responses"))
++            .respond_with(response)
++            .mount(&provider.server)
++            .await;
++        provider
++    }
++
++    pub fn models_url(&self) -> String {
++        format!("{}/v1/models", self.server.uri())
++    }
++
++    pub fn responses_url(&self) -> String {
++        format!("{}/v1/responses", self.server.uri())
++    }
++
++    async fn start() -> Self {
++        Self {
++            server: MockServer::start().await,
++        }
++    }
++
++    async fn responses_response(response: ResponseTemplate) -> Self {
++        let provider = Self::start().await;
++        Mock::given(method("POST"))
++            .and(path("/v1/responses"))
++            .respond_with(response)
++            .mount(&provider.server)
++            .await;
++        provider
++    }
++}
+diff --git a/codex-rs/app-server/tests/suite/v2/provider_studio_mock.rs b/codex-rs/app-server/tests/suite/v2/provider_studio_mock.rs
+new file mode 100644
+index 0000000..11b93b5
+--- /dev/null
++++ b/codex-rs/app-server/tests/suite/v2/provider_studio_mock.rs
+@@ -0,0 +1,96 @@
++use anyhow::Result;
++use app_test_support::ProviderStudioMock;
++use reqwest::StatusCode;
++use serde_json::Value;
++
++#[tokio::test]
++async fn provider_studio_mock_serves_healthy_models_when_requested() -> Result<()> {
++    let provider = ProviderStudioMock::healthy_models().await;
++
++    let response = reqwest::get(provider.models_url()).await?;
++
++    assert_eq!(response.status(), StatusCode::OK);
++    let body = response.json::<Value>().await?;
++    assert_eq!(body["object"], "list");
++    assert_eq!(body["data"][0]["id"], "provider-studio-model");
++    Ok(())
++}
++
++#[tokio::test]
++async fn provider_studio_mock_returns_not_found_when_models_endpoint_missing() -> Result<()> {
++    let provider = ProviderStudioMock::missing_models().await;
++
++    let response = reqwest::get(provider.models_url()).await?;
++
++    assert_eq!(response.status(), StatusCode::NOT_FOUND);
++    Ok(())
++}
++
++#[tokio::test]
++async fn provider_studio_mock_returns_responses_404_when_configured() -> Result<()> {
++    let provider = ProviderStudioMock::responses_404().await;
++
++    let response = reqwest::Client::new()
++        .post(provider.responses_url())
++        .send()
++        .await?;
++
++    assert_eq!(response.status(), StatusCode::NOT_FOUND);
++    Ok(())
++}
++
++#[tokio::test]
++async fn provider_studio_mock_streams_assistant_message_when_requested() -> Result<()> {
++    let provider = ProviderStudioMock::streaming_assistant("fixture assistant").await;
++
++    let response = reqwest::Client::new()
++        .post(provider.responses_url())
++        .send()
++        .await?;
++
++    assert_eq!(response.status(), StatusCode::OK);
++    assert_eq!(
++        response
++            .headers()
++            .get("content-type")
++            .and_then(|value| value.to_str().ok()),
++        Some("text/event-stream")
++    );
++    let body = response.text().await?;
++    assert!(body.contains("fixture assistant"));
++    assert!(body.contains("response.completed"));
++    Ok(())
++}
++
++#[tokio::test]
++async fn provider_studio_mock_streams_tool_call_when_requested() -> Result<()> {
++    let provider = ProviderStudioMock::streaming_tool_call().await;
++
++    let response = reqwest::Client::new()
++        .post(provider.responses_url())
++        .send()
++        .await?;
++
++    assert_eq!(response.status(), StatusCode::OK);
++    let body = response.text().await?;
++    assert!(body.contains("function_call"));
++    assert!(body.contains("provider_studio_mock_tool"));
++    Ok(())
++}
++
++#[tokio::test]
++async fn provider_studio_mock_returns_auth_required_401_when_configured() -> Result<()> {
++    let provider = ProviderStudioMock::auth_required_401().await;
++
++    let response = reqwest::get(provider.models_url()).await?;
++
++    assert_eq!(response.status(), StatusCode::UNAUTHORIZED);
++    assert_eq!(
++        response
++            .headers()
++            .get("www-authenticate")
++            .and_then(|value| value.to_str().ok()),
++        Some("Bearer")
++    );
++    Ok(())
++}

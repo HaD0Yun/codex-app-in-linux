@@ -1,0 +1,8 @@
+bazel_lock_update_evidence
+bazel_version:
+bazel 9.0.0
+bazel_lock_update_output:
+<root> (codex@_)
+
+MODULE.bazel.lock_diff:
+provider_refs_in_MODULE_lock:

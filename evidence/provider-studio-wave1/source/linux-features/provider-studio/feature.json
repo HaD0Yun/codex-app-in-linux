@@ -1,0 +1,9 @@
+{
+  "id": "provider-studio",
+  "title": "Provider Studio",
+  "description": "Disabled Linux-side launcher and entrypoint scaffold for future provider studio integration.",
+  "defaultEnabled": false,
+  "entrypoints": {
+    "patches": "./patch.js"
+  }
+}
