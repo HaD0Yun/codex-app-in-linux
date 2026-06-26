@@ -16,6 +16,7 @@ It proves the product contracts needed by the next wrapper integration wave:
 - reviewable Codex config fragment export using `env_key` references instead of raw secrets
 - safe Codex config apply/restore with timestamped backups
 - installable app surface files under `.codex-linux/provider-studio/`
+- visible Provider Studio webview overlay installer with apply/restore buttons
 - two-provider switching verification
 
 Run:
@@ -26,6 +27,7 @@ node provider-studio-wave2/cli.js switching-smoke --tmp-dir "$(mktemp -d)"
 node provider-studio-wave2/cli.js bridge-smoke --tmp-dir "$(mktemp -d)"
 node provider-studio-wave2/cli.js redaction-check --secret sk-feedback-SECRET-123 --tmp-dir "$(mktemp -d)"
 node provider-studio-wave2/cli.js install-app-surface --provider-config /path/to/codex-provider-studio.json --app-dir /path/to/codex-app
+node provider-studio-wave2/cli.js install-visible-ui --app-dir /path/to/codex-app
 node provider-studio-wave2/cli.js apply-codex-config --provider-config /path/to/codex-provider-studio.json --codex-config ~/.codex/config.toml
 node provider-studio-wave2/cli.js restore-codex-config --codex-config ~/.codex/config.toml
 node --test provider-studio-wave2/test.js

@@ -18,6 +18,7 @@ This work is intended for the `feature/provider-studio-wave1` branch line only. 
 - Reviewable Codex config TOML fragment export that maps the active Provider Studio provider/model to `model`, `model_provider`, and `[model_providers.*]` without embedding raw secrets.
 - Safe Codex config apply/restore commands with timestamped backups.
 - App surface installer that writes `.codex-linux/provider-studio/state.json`, `codex-config.provider-studio.toml`, `report.json`, and `index.html`.
+- Visible Provider Studio webview overlay installer that injects a same-origin UI script and local JSON API with apply/restore support.
 - CLI smoke checks that exercise list, discover, apply, restore, app bridge state, Codex fragment generation, and report generation.
 - Secret redaction checks that fail if raw API keys appear in output artifacts.
 
@@ -37,6 +38,7 @@ node provider-studio-wave2/cli.js switching-smoke --tmp-dir "$(mktemp -d)"
 node provider-studio-wave2/cli.js bridge-smoke --tmp-dir "$(mktemp -d)"
 node provider-studio-wave2/cli.js redaction-check --secret sk-feedback-SECRET-123 --tmp-dir "$(mktemp -d)"
 node provider-studio-wave2/cli.js install-app-surface --provider-config /path/to/codex-provider-studio.json --app-dir /path/to/codex-app
+node provider-studio-wave2/cli.js install-visible-ui --app-dir /path/to/codex-app
 node provider-studio-wave2/cli.js apply-codex-config --provider-config /path/to/codex-provider-studio.json --codex-config ~/.codex/config.toml
 node provider-studio-wave2/cli.js restore-codex-config --codex-config ~/.codex/config.toml
 node --test provider-studio-wave2/test.js
