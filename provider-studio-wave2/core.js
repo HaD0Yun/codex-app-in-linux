@@ -54,7 +54,7 @@ function redactValue(value) {
   if (value && typeof value === "object") {
     const redacted = {};
     for (const [key, child] of Object.entries(value)) {
-      redacted[key] = /apiKey|token|authorization|secret/i.test(key)
+      redacted[key] = /apiKey|token|authorization|secret|credentialRef/i.test(key)
         ? "[REDACTED]"
         : redactValue(child);
     }
@@ -84,7 +84,7 @@ function providerForApply(input) {
     compatibility: input.compatibility,
     auth: {
       type: input.authType,
-      credentialRef: input.credentialRef,
+      credentialRef: envKeyFromCredentialRef(input.credentialRef) ? input.credentialRef : null,
     },
     defaultModel: input.defaultModel,
   };
@@ -178,8 +178,6 @@ function createCodexConfigFragment(config) {
   const envKey = envKeyFromCredentialRef(provider.auth && provider.auth.credentialRef);
   if (envKey) {
     lines.push(`env_key = ${tomlString(envKey)}`);
-  } else if (provider.auth && provider.auth.credentialRef) {
-    lines.push(`# credential_ref = ${tomlString(provider.auth.credentialRef)}`);
   }
 
   return `${lines.join("\n")}\n`;

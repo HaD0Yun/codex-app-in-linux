@@ -36,3 +36,5 @@ node --test provider-studio-wave2/test.js
 `bridge-smoke` exercises the closest safe integration surface available in this proof repository: bridge-style methods, app bridge state export, a generated Codex config TOML fragment, redacted report export, two-provider switching, and restore.
 
 `apply-codex-config` always writes a `*.provider-studio-backup-*` file before mutating the target Codex config. Use `restore-codex-config` to roll back the latest Provider Studio backup.
+
+The visible UI installer is fail-closed: it refuses to patch if the expected webview `</body>` or `CodexWebviewHandler` anchors are missing, is idempotent on repeat installs, and emits Python that is covered by `py_compile` regression tests. Non-`env:` credential references are omitted/redacted instead of being serialized into TOML, state, or reports.

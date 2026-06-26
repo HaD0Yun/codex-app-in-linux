@@ -112,14 +112,14 @@ def _ps_apply(payload):
     (root/"state.json").write_text(_ps_json.dumps(state, indent=2)+"\\n", encoding="utf-8"); (root/"codex-config.provider-studio.toml").write_text(fragment, encoding="utf-8")
     home=_ps_pathlib.Path(os.environ.get("CODEX_HOME") or _ps_pathlib.Path.home()/".codex"); cfg=home/"config.toml"; cfg.parent.mkdir(parents=True, exist_ok=True)
     existing=cfg.read_text(encoding="utf-8") if cfg.exists() else ""; backup=cfg.with_name(cfg.name+".provider-studio-backup-"+_ps_time.strftime("%Y%m%dT%H%M%SZ")); backup.write_text(existing, encoding="utf-8")
-    tmp=_ps_pathlib.Path(_ps_tempfile.mkstemp(prefix=cfg.name+".", suffix=".tmp", dir=str(cfg.parent))[1]); tmp.write_text(_ps_merge(existing, fragment), encoding="utf-8"); tmp.chmod(0o600); tmp.replace(cfg)
+    fd, tmp_name = _ps_tempfile.mkstemp(prefix=cfg.name+".", suffix=".tmp", dir=str(cfg.parent)); os.close(fd); tmp=_ps_pathlib.Path(tmp_name); tmp.write_text(_ps_merge(existing, fragment), encoding="utf-8"); tmp.chmod(0o600); tmp.replace(cfg)
     return {"ok":True,"state":state,"configPath":str(cfg),"backupPath":str(backup),"fragmentPath":str(root/"codex-config.provider-studio.toml")}
 
 def _ps_restore():
     home=_ps_pathlib.Path(os.environ.get("CODEX_HOME") or _ps_pathlib.Path.home()/".codex"); cfg=home/"config.toml"; backups=sorted(cfg.parent.glob(cfg.name+".provider-studio-backup-*"))
     if not backups: raise ValueError("no Provider Studio backup available")
-    backup=backups[-1]; tmp=_ps_pathlib.Path(_ps_tempfile.mkstemp(prefix=cfg.name+".", suffix=".tmp", dir=str(cfg.parent))[1]); tmp.write_text(backup.read_text(encoding="utf-8"), encoding="utf-8"); tmp.chmod(0o600); tmp.replace(cfg)
-    root=_ps_root(); state={"schemaVersion":1,"active":None,"restoredFrom":str(backup)}; (root/"state.json").write_text(_ps_json.dumps(state, indent=2)+"\n", encoding="utf-8")
+    backup=backups[-1]; fd, tmp_name = _ps_tempfile.mkstemp(prefix=cfg.name+".", suffix=".tmp", dir=str(cfg.parent)); os.close(fd); tmp=_ps_pathlib.Path(tmp_name); tmp.write_text(backup.read_text(encoding="utf-8"), encoding="utf-8"); tmp.chmod(0o600); tmp.replace(cfg)
+    root=_ps_root(); state={"schemaVersion":1,"active":None,"restoredFrom":str(backup)}; (root/"state.json").write_text(_ps_json.dumps(state, indent=2)+"\\n", encoding="utf-8")
     return {"ok":True,"configPath":str(cfg),"backupPath":str(backup),"state":state}
 `;
 
@@ -331,13 +331,31 @@ function runInstallAppSurface(args) {
 
 function injectProviderStudioScript(indexText) {
   if (indexText.includes('provider-studio-ui.js')) return indexText;
+  if (!indexText.includes('</body>')) {
+    throw new Error('Codex webview index.html is missing </body> anchor for Provider Studio injection.');
+  }
   return indexText.replace('</body>', '    <script type="module" src="./provider-studio-ui.js"></script>\n  </body>');
 }
 
-function patchProviderStudioServer(serverText) {
-  if (serverText.includes('Provider Studio API (installed by provider-studio-wave2 install-visible-ui)')) return serverText;
+function stripExistingProviderStudioServerPatch(serverText) {
   let next = serverText;
-  if (!next.includes('import os')) next = next.replace('import functools\n', 'import functools\nimport os\n');
+  next = next.replace(/\n*# Provider Studio API: small Linux-wrapper bridge for visible provider switching\.[\s\S]*?(?=\n# Provider Studio API \(installed by provider-studio-wave2 install-visible-ui\)|\nclass CodexWebviewHandler\(http\.server\.SimpleHTTPRequestHandler\):)/, '\n');
+  next = next.replace(/\n*# Provider Studio API \(installed by provider-studio-wave2 install-visible-ui\)[\s\S]*?(?=\nclass CodexWebviewHandler\(http\.server\.SimpleHTTPRequestHandler\):)/, '\n');
+  next = next.replace(/(class CodexWebviewHandler\(http\.server\.SimpleHTTPRequestHandler\):\n)(?:    def do_GET\(self\):[\s\S]*?\n\n)?(?:    def do_POST\(self\):[\s\S]*?\n\n)?/, '$1');
+  return next;
+}
+
+function patchProviderStudioServer(serverText) {
+  let next = stripExistingProviderStudioServerPatch(serverText);
+  if (!next.includes('class CodexWebviewHandler(http.server.SimpleHTTPRequestHandler):\n')) {
+    throw new Error('Codex webview-server.py is missing CodexWebviewHandler anchor for Provider Studio API injection.');
+  }
+  if (!next.includes('import os')) {
+    if (!next.includes('import functools\n')) {
+      throw new Error('Codex webview-server.py is missing import anchor for Provider Studio API injection.');
+    }
+    next = next.replace('import functools\n', 'import functools\nimport os\n');
+  }
   next = next.replace('class CodexWebviewHandler(http.server.SimpleHTTPRequestHandler):\n', `${PROVIDER_STUDIO_SERVER_PATCH}\nclass CodexWebviewHandler(http.server.SimpleHTTPRequestHandler):\n`);
   const methods = `    def do_GET(self):\n        if self.path == "/provider-studio/api/state":\n            root = _ps_root(); state_path = root / "state.json"\n            if state_path.exists():\n                try: _ps_json_response(self, 200, _ps_json.loads(state_path.read_text(encoding="utf-8")))\n                except Exception as exc: _ps_json_response(self, 500, {"ok": False, "error": str(exc)})\n            else: _ps_json_response(self, 200, {"ok": True, "active": None, "message": "No Provider Studio selection applied yet."})\n            return\n        return super().do_GET()\n\n    def do_POST(self):\n        if self.path in ("/provider-studio/api/apply", "/provider-studio/api/restore"):\n            try:\n                if self.headers.get("content-type", "").split(";", 1)[0].strip().lower() != "application/json": raise ValueError("content-type must be application/json")\n                length = int(self.headers.get("content-length") or "0")\n                if length > _PROVIDER_STUDIO_MAX_BODY: raise ValueError("request body too large")\n                payload = _ps_json.loads(self.rfile.read(length).decode("utf-8") or "{}")\n                _ps_json_response(self, 200, _ps_apply(payload) if self.path.endswith("/apply") else _ps_restore())\n            except Exception as exc:\n                _ps_json_response(self, 400, {"ok": False, "error": str(exc)})\n            return\n        self.send_error(404)\n\n`;
   return next.replace('class CodexWebviewHandler(http.server.SimpleHTTPRequestHandler):\n', `class CodexWebviewHandler(http.server.SimpleHTTPRequestHandler):\n${methods}`);
@@ -353,9 +371,11 @@ function runInstallVisibleUi(args) {
   assertCondition(fs.existsSync(indexPath), `missing ${indexPath}`);
   assertCondition(fs.existsSync(uiSource), `missing ${uiSource}`);
   assertCondition(fs.existsSync(serverPath), `missing ${serverPath}`);
+  const nextIndex = injectProviderStudioScript(fs.readFileSync(indexPath, 'utf8'));
+  const nextServer = patchProviderStudioServer(fs.readFileSync(serverPath, 'utf8'));
   fs.copyFileSync(uiSource, uiTarget);
-  fs.writeFileSync(indexPath, injectProviderStudioScript(fs.readFileSync(indexPath, 'utf8')));
-  fs.writeFileSync(serverPath, patchProviderStudioServer(fs.readFileSync(serverPath, 'utf8')));
+  fs.writeFileSync(indexPath, nextIndex);
+  fs.writeFileSync(serverPath, nextServer);
   console.log(`PASS install-visible-ui app=${appDir} ui=${uiTarget} server=${serverPath}`);
 }
 

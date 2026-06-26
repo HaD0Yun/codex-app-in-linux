@@ -2,7 +2,7 @@
 
 This branch now carries an executable Provider Studio overlay package in `provider-studio-wave2/`.
 
-The important boundary is unchanged: this proof repository does not contain the generated Codex renderer, app-server, or upstream wrapper source tree. The `upstream/` checkout is intentionally ignored. Because of that, Wave 2 does not claim that Provider Studio is already visible inside the installed Codex App UI.
+The important boundary is unchanged: this proof repository does not contain the generated Codex renderer, app-server, or upstream wrapper source tree. The `upstream/` checkout is intentionally ignored. Because the generated upstream app remains ignored, source-level product integration is still isolated to the overlay package; the installed local app can now be patched with the visible Provider Studio overlay and local API by running `install-visible-ui`.
 
 This work is intended for the `feature/provider-studio-wave1` branch line only. It must not be pushed directly to `master`.
 
@@ -66,4 +66,11 @@ This branch now provides a concrete behavior package, bridge contract, app bridg
 
 ## Latest Development Pass
 
-The follow-up team pass added the final safe surfaces possible in this proof repository: config apply/restore with backups, installable app surface files, and tests for both. Generated renderer UI and real app-server mounting still require upstream source/bundle patch work and are intentionally not faked here.
+The follow-up team pass added the final safe surfaces possible in this proof repository: config apply/restore with backups, installable app surface files, and tests for both. The current local installed app has a source-owned visible overlay installer rather than a minified-bundle edit. Full upstream productization still means moving the same Provider Studio entry/API into maintained renderer/app-server source when that source is available.
+
+## Hardening Added After Review
+
+- `install-visible-ui` now fails closed when expected HTML/server anchors are missing, and remains idempotent when already installed.
+- The generated Python webview API compiles under `py_compile` and closes `mkstemp` file descriptors before writing atomically.
+- Non-`env:` credential references are dropped/redacted so plain secret-like references are not serialized to state, reports, or TOML fragments.
+- The visible overlay exposes stable test selectors, a Provider Studio button, provider/model fields, Apply, Restore, and Refresh controls.

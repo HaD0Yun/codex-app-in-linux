@@ -4,6 +4,7 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const os = require("node:os");
 const path = require("node:path");
+const { execFileSync } = require("node:child_process");
 const test = require("node:test");
 const {
   PRESETS,
@@ -13,6 +14,7 @@ const {
   createCodexConfigFragment,
   doctorProvider,
   exportAppBridgeState,
+  exportCodexConfigFragment,
   exportReport,
   installAppSurface,
   mergeCodexConfigText,
@@ -209,4 +211,71 @@ test("installAppSurface writes state, fragment, report, and html", () => {
     assert.equal(fs.existsSync(file), true);
   }
   assert.match(fs.readFileSync(result.fragmentPath, "utf8"), /env_key = "MOCK_B_KEY"/);
+});
+
+
+function createFakeCodexApp(root, overrides = {}) {
+  const appDir = path.join(root, "codex-app");
+  const webviewDir = path.join(appDir, "content", "webview");
+  const serverDir = path.join(appDir, ".codex-linux");
+  fs.mkdirSync(webviewDir, { recursive: true });
+  fs.mkdirSync(serverDir, { recursive: true });
+  fs.writeFileSync(
+    path.join(webviewDir, "index.html"),
+    overrides.indexHtml || "<!doctype html><html><body><main>Codex</main></body></html>\n",
+  );
+  fs.writeFileSync(
+    path.join(serverDir, "webview-server.py"),
+    overrides.serverText || [
+      "import functools",
+      "import http.server",
+      "",
+      "class CodexWebviewHandler(http.server.SimpleHTTPRequestHandler):",
+      "    pass",
+      "",
+    ].join("\n"),
+  );
+  return appDir;
+}
+
+test("non-env credential references are omitted from Codex fragments and redacted state", () => {
+  const root = tempDir();
+  const configPath = path.join(root, "provider-studio.json");
+  const statePath = path.join(root, "state.json");
+  const fragmentPath = path.join(root, "fragment.toml");
+  applyProvider(configPath, providerInput({ credentialRef: "plain-secret-value", apiKey: "plain-secret-value" }));
+  const config = readConfig(configPath);
+  assert.equal(config.providers[0].auth.credentialRef, null);
+  const state = exportAppBridgeState(statePath, config);
+  const fragment = exportCodexConfigFragment(fragmentPath, config);
+  assert.equal(JSON.stringify(state).includes("plain-secret-value"), false);
+  assert.equal(fragment.includes("plain-secret-value"), false);
+  assert.doesNotMatch(fragment, /credential_ref/);
+});
+
+test("install-visible-ui patches a fake app idempotently and emits valid Python", () => {
+  const root = tempDir();
+  const appDir = createFakeCodexApp(root);
+  const cliPath = path.join(__dirname, "cli.js");
+  execFileSync(process.execPath, [cliPath, "install-visible-ui", "--app-dir", appDir], { stdio: "pipe" });
+  execFileSync(process.execPath, [cliPath, "install-visible-ui", "--app-dir", appDir], { stdio: "pipe" });
+  const indexText = fs.readFileSync(path.join(appDir, "content", "webview", "index.html"), "utf8");
+  const serverPath = path.join(appDir, ".codex-linux", "webview-server.py");
+  assert.equal((indexText.match(/provider-studio-ui\.js/g) || []).length, 1);
+  assert.equal(fs.existsSync(path.join(appDir, "content", "webview", "provider-studio-ui.js")), true);
+  execFileSync("python3", ["-m", "py_compile", serverPath], { stdio: "pipe" });
+});
+
+test("install-visible-ui fails closed when app anchors drift", () => {
+  const root = tempDir();
+  const cliPath = path.join(__dirname, "cli.js");
+  const badIndexApp = createFakeCodexApp(path.join(root, "bad-index"), { indexHtml: "<html><main>no body close</main></html>" });
+  assert.throws(() => execFileSync(process.execPath, [cliPath, "install-visible-ui", "--app-dir", badIndexApp], { stdio: "pipe" }), /Provider Studio injection/);
+  const badServerApp = createFakeCodexApp(path.join(root, "bad-server"), { serverText: "import functools\nimport http.server\nclass OtherHandler:\n    pass\n" });
+  const badServerIndexPath = path.join(badServerApp, "content", "webview", "index.html");
+  const badServerUiPath = path.join(badServerApp, "content", "webview", "provider-studio-ui.js");
+  const beforeBadServerIndex = fs.readFileSync(badServerIndexPath, "utf8");
+  assert.throws(() => execFileSync(process.execPath, [cliPath, "install-visible-ui", "--app-dir", badServerApp], { stdio: "pipe" }), /Provider Studio API injection/);
+  assert.equal(fs.readFileSync(badServerIndexPath, "utf8"), beforeBadServerIndex);
+  assert.equal(fs.existsSync(badServerUiPath), false);
 });
