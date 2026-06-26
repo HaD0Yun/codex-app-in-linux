@@ -125,11 +125,16 @@
   panel.innerHTML = `<header><strong>Provider Studio</strong><button class="secondary" id="ps-close" type="button">Close</button></header><main><label>Provider<div id="provider-studio-provider-buttons" role="group" aria-label="Provider"><button type="button" class="active" data-provider-id="openai">OpenAI</button><button type="button" data-provider-id="openrouter">OpenRouter</button><button type="button" data-provider-id="local-openai-compatible">Local OpenAI-compatible</button><button type="button" data-provider-id="open-bigmodel">open.bigmodel</button><button type="button" data-provider-id="z-ai">z.ai</button><button type="button" data-provider-id="cliproxyapi">CLIProxyAPI local proxy</button></div></label><section class="provider-studio-card"><strong>Setup</strong><div id="provider-studio-auth-buttons" role="group" aria-label="Authentication mode"><button type="button" class="active" data-auth-mode="env">Use env key</button><button type="button" data-auth-mode="local-proxy">Use local proxy/account pool</button></div><label>CLIProxyAPI management URL <input id="ps-management-url" value="http://127.0.0.1:8317/v0/management" /></label><label>Management key env name <input id="ps-management-key-env" value="CLIPROXY_MANAGEMENT_KEY" /></label></section><section class="provider-studio-card"><strong>Target</strong><label>Base URL <input id="ps-base-url" value="https://api.openai.com" /></label><label>Model <input id="ps-model" value="gpt-5.5" /></label><label>Environment key for API key <input id="ps-env-key" value="OPENAI_API_KEY" /></label></section><button id="ps-apply" type="button" aria-label="Apply selection to Codex config">Apply selection to Codex config</button><button id="ps-restore" class="secondary" type="button" aria-label="Restore previous Codex config">Restore previous Codex config</button><button id="ps-refresh" class="secondary" type="button">Refresh state</button><div id="provider-studio-status">Loading...</div><small>Provider changes affect new Codex runtime work or after restart unless the app proves live switching.</small></main>`;
   document.body.append(panel, fab);
 
-  for (const eventName of ['pointerdown', 'pointerup', 'mousedown', 'mouseup', 'click', 'dblclick', 'keydown', 'keyup', 'input', 'change', 'wheel']) {
+  for (const eventName of ['pointerdown', 'pointerup', 'mousedown', 'mouseup', 'click', 'dblclick']) {
     for (const root of [panel, fab]) {
       root.addEventListener(eventName, (event) => event.stopPropagation());
     }
   }
+  document.addEventListener('pointerdown', (event) => {
+    if (!panel.classList.contains('open')) return;
+    if (panel.contains(event.target) || fab.contains(event.target)) return;
+    panel.classList.remove('open');
+  });
 
   const $ = (id) => panel.querySelector(id);
   const status = $('#provider-studio-status');

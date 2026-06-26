@@ -361,6 +361,15 @@ test("install-visible-ui patches a fake app idempotently and emits valid Python"
   ].join("\n");
   execFileSync("python3", ["-c", bridgeCheck], { stdio: "pipe" });
 });
+test("visible Provider Studio overlay does not trap keyboard input globally", () => {
+  const source = fs.readFileSync(path.join(__dirname, "visible-ui.js"), "utf8");
+  assert.doesNotMatch(source, /'keydown'/);
+  assert.doesNotMatch(source, /'keyup'/);
+  assert.doesNotMatch(source, /'input'/);
+  assert.doesNotMatch(source, /'change'/);
+  assert.doesNotMatch(source, /'wheel'/);
+  assert.match(source, /document\.addEventListener\('pointerdown'/);
+});
 
 test("install-visible-ui fails closed when app anchors drift", () => {
   const root = tempDir();
