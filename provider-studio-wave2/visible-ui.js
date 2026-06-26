@@ -52,14 +52,28 @@
     }
     #provider-studio-panel main { padding: 14px; display: grid; gap: 10px; }
     #provider-studio-panel label { display: grid; gap: 5px; color: #cbd5e1; }
-    #provider-studio-panel input,
-    #provider-studio-panel select {
+    #provider-studio-panel input {
       background: #020617;
       color: #e5e7eb;
       border: 1px solid #334155;
       border-radius: 8px;
       padding: 8px;
       font: 13px system-ui;
+    }
+    #provider-studio-provider-buttons {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 6px;
+    }
+    #provider-studio-provider-buttons button {
+      background: #020617;
+      border: 1px solid #334155;
+      color: #e5e7eb;
+      text-align: left;
+    }
+    #provider-studio-provider-buttons button.active {
+      background: #1d4ed8;
+      border-color: #60a5fa;
     }
     #provider-studio-panel button {
       background: #2563eb;
@@ -96,7 +110,7 @@
   panel.id = 'provider-studio-panel';
   panel.dataset.providerStudioPanel = 'true';
   panel.setAttribute('aria-label', 'Provider Studio provider and model switching');
-  panel.innerHTML = `<header><strong>Provider Studio</strong><button class="secondary" id="ps-close" type="button">Close</button></header><main><label>Provider<select id="ps-provider"><option value="openai">OpenAI</option><option value="openrouter">OpenRouter</option><option value="local-openai-compatible">Local OpenAI-compatible</option></select></label><label>Base URL <input id="ps-base-url" value="https://api.openai.com" /></label><label>Model <input id="ps-model" value="gpt-5.5" /></label><label>Environment key for API key <input id="ps-env-key" value="OPENAI_API_KEY" /></label><button id="ps-apply" type="button" aria-label="Apply selection to Codex config">Apply selection to Codex config</button><button id="ps-restore" class="secondary" type="button" aria-label="Restore previous Codex config">Restore previous Codex config</button><button id="ps-refresh" class="secondary" type="button">Refresh state</button><div id="provider-studio-status">Loading...</div><small>Provider changes affect new Codex runtime work or after restart unless the app proves live switching.</small></main>`;
+  panel.innerHTML = `<header><strong>Provider Studio</strong><button class="secondary" id="ps-close" type="button">Close</button></header><main><label>Provider<div id="provider-studio-provider-buttons" role="group" aria-label="Provider"><button type="button" class="active" data-provider-id="openai">OpenAI</button><button type="button" data-provider-id="openrouter">OpenRouter</button><button type="button" data-provider-id="local-openai-compatible">Local OpenAI-compatible</button></div></label><label>Base URL <input id="ps-base-url" value="https://api.openai.com" /></label><label>Model <input id="ps-model" value="gpt-5.5" /></label><label>Environment key for API key <input id="ps-env-key" value="OPENAI_API_KEY" /></label><button id="ps-apply" type="button" aria-label="Apply selection to Codex config">Apply selection to Codex config</button><button id="ps-restore" class="secondary" type="button" aria-label="Restore previous Codex config">Restore previous Codex config</button><button id="ps-refresh" class="secondary" type="button">Refresh state</button><div id="provider-studio-status">Loading...</div><small>Provider changes affect new Codex runtime work or after restart unless the app proves live switching.</small></main>`;
   document.body.append(panel, fab);
 
   for (const eventName of ['pointerdown', 'pointerup', 'mousedown', 'mouseup', 'click', 'dblclick', 'keydown', 'keyup', 'input', 'change', 'wheel']) {
@@ -113,16 +127,27 @@
     'local-openai-compatible': { baseUrl: 'http://127.0.0.1:11434', model: 'llama3.1', envKey: 'LOCAL_OPENAI_API_KEY' },
   };
 
+  let selectedProviderId = 'openai';
+
+  function selectProvider(providerId) {
+    selectedProviderId = providerId;
+    for (const button of panel.querySelectorAll('[data-provider-id]')) {
+      button.classList.toggle('active', button.dataset.providerId === providerId);
+      button.setAttribute('aria-pressed', String(button.dataset.providerId === providerId));
+    }
+    const d = defaults[providerId];
+    $('#ps-base-url').value = d.baseUrl;
+    $('#ps-model').value = d.model;
+    $('#ps-env-key').value = d.envKey;
+  }
+
   function setStatus(value) {
     status.textContent = typeof value === 'string' ? value : JSON.stringify(value, null, 2);
   }
 
-  $('#ps-provider').addEventListener('change', () => {
-    const d = defaults[$('#ps-provider').value];
-    $('#ps-base-url').value = d.baseUrl;
-    $('#ps-model').value = d.model;
-    $('#ps-env-key').value = d.envKey;
-  });
+  for (const button of panel.querySelectorAll('[data-provider-id]')) {
+    button.addEventListener('click', () => selectProvider(button.dataset.providerId));
+  }
 
   async function call(path, payload) {
     const res = await fetch(path, payload ? { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(payload) } : { cache: 'no-store' });
@@ -139,7 +164,7 @@
 
   async function apply() {
     const payload = {
-      providerId: $('#ps-provider').value,
+      providerId: selectedProviderId,
       baseUrl: $('#ps-base-url').value.trim(),
       model: $('#ps-model').value.trim(),
       envKey: $('#ps-env-key').value.trim(),
