@@ -19,6 +19,7 @@ const {
   installAppSurface,
   mergeCodexConfigText,
   readConfig,
+  redactValue,
   restoreCodexConfigBackup,
   restorePrevious,
   startMockProvider,
@@ -39,12 +40,15 @@ function providerInput(overrides = {}) {
     apiKey: overrides.apiKey,
     credentialRef: overrides.credentialRef || "env:LOCAL_KEY",
     defaultModel: overrides.defaultModel || "local-model",
+    authMode: overrides.authMode,
+    localProxy: overrides.localProxy,
+    management: overrides.management,
   };
 }
 
 test("provider presets include OpenAI-compatible targets", () => {
   const ids = PRESETS.map((preset) => preset.id);
-  assert.deepEqual(ids, ["openai", "openrouter", "local-openai-compatible", "open-bigmodel", "z-ai"]);
+  assert.deepEqual(ids, ["openai", "openrouter", "local-openai-compatible", "open-bigmodel", "z-ai", "cliproxyapi"]);
 });
 
 test("doctor discovers models from a mock OpenAI-compatible provider", async () => {
@@ -160,11 +164,84 @@ test("direct app bridge state export reflects selected provider", () => {
   assert.equal(fs.existsSync(statePath), true);
 });
 
+test("setup metadata captures local proxy mode without leaking secrets", () => {
+  const root = tempDir();
+  const configPath = path.join(root, "provider-studio.json");
+  const statePath = path.join(root, "state.json");
+  applyProvider(
+    configPath,
+    providerInput({
+      id: "cliproxyapi",
+      displayName: "CLIProxyAPI",
+      baseUrl: "http://127.0.0.1:8317/v1",
+      defaultModel: "gpt-5.5",
+      authMode: "local-proxy",
+      apiKey: "sk-local-secret",
+      localProxy: { enabled: true, baseUrl: "http://127.0.0.1:8317/v1" },
+      management: { url: "http://127.0.0.1:8317/v0/management", keyEnv: "CLIPROXY_MANAGEMENT_KEY", secretKey: "sk-management-secret" },
+    }),
+  );
+  const state = exportAppBridgeState(statePath, readConfig(configPath));
+  const serialized = JSON.stringify(state);
+  assert.equal(state.provider.setup.authMode, "local-proxy");
+  assert.equal(state.provider.setup.credentialSource.type, "proxy-managed");
+  assert.equal(state.provider.setup.management.url, "http://127.0.0.1:8317/v0/management");
+  assert.equal(serialized.includes("sk-local-secret"), false);
+  assert.equal(serialized.includes("sk-management-secret"), false);
+});
+
+test("redaction covers management key value aliases", () => {
+  const redacted = redactValue({
+    management: {
+      keyValue: "mgmt-super-secret-token",
+      managementKey: "mgmt-key",
+      password: "mgmt-password",
+      safeEnvKey: "CLIPROXY_MANAGEMENT_KEY",
+    },
+  });
+  const serialized = JSON.stringify(redacted);
+  assert.equal(serialized.includes("mgmt-super-secret-token"), false);
+  assert.equal(serialized.includes("mgmt-key"), false);
+  assert.equal(serialized.includes("mgmt-password"), false);
+  assert.equal(serialized.includes("CLIPROXY_MANAGEMENT_KEY"), true);
+});
+
+test("local proxy mode requires loopback URLs", () => {
+  assert.throws(
+    () => applyProvider(
+      path.join(tempDir(), "provider-studio.json"),
+      providerInput({ authMode: "local-proxy", baseUrl: "https://example.com/v1" }),
+    ),
+    (error) => error && error.code === "LOCAL_PROXY_NOT_LOOPBACK",
+  );
+  assert.throws(
+    () => applyProvider(
+      path.join(tempDir(), "provider-studio.json"),
+      providerInput({
+        authMode: "local-proxy",
+        baseUrl: "http://127.0.0.1:8317/v1",
+        management: { url: "https://example.com/v0/management" },
+      }),
+    ),
+    (error) => error && error.code === "LOCAL_MANAGEMENT_NOT_LOOPBACK",
+  );
+});
+
+test("direct api key mode stays disabled until secure local secret storage exists", () => {
+  assert.throws(
+    () => applyProvider(
+      path.join(tempDir(), "provider-studio.json"),
+      providerInput({ authMode: "direct-api-key", apiKey: "sk-local-secret" }),
+    ),
+    (error) => error && error.code === "AUTH_MODE_UNSUPPORTED",
+  );
+});
+
 
 test("Codex config apply creates backup and restore recovers original", () => {
   const root = tempDir();
   const codexConfigPath = path.join(root, "config.toml");
-  fs.writeFileSync(codexConfigPath, "model = \"old-model\"\n\n[features]\njs_repl = false\n", { mode: 0o600 });
+  fs.writeFileSync(codexConfigPath, "model = \"old-model\"\nprofile = \"work\"\n\n[profiles.work]\nmodel_provider = \"old-profile-provider\"\napproval_policy = \"never\"\n\n[features]\njs_repl = false\n", { mode: 0o600 });
   const fragment = createCodexConfigFragment({
     providers: [
       {
@@ -183,11 +260,14 @@ test("Codex config apply creates backup and restore recovers original", () => {
   assert.match(merged, /model = "model-b1"/);
   assert.match(merged, /\[features\]/);
   assert.doesNotMatch(merged, /old-model/);
+  assert.match(merged, /profile = "work"/);
+  assert.match(merged, /\[profiles\.work\]/);
+  assert.match(merged, /model_provider = "old-profile-provider"/);
   const result = applyCodexConfigFragment(codexConfigPath, fragment, { backupPath: path.join(root, "backup.toml") });
   assert.equal(result.changed, true);
   assert.match(fs.readFileSync(codexConfigPath, "utf8"), /model_provider = "provider-studio-mock-b"/);
   restoreCodexConfigBackup(codexConfigPath, result.backupPath);
-  assert.equal(fs.readFileSync(codexConfigPath, "utf8"), "model = \"old-model\"\n\n[features]\njs_repl = false\n");
+  assert.equal(fs.readFileSync(codexConfigPath, "utf8"), "model = \"old-model\"\nprofile = \"work\"\n\n[profiles.work]\nmodel_provider = \"old-profile-provider\"\napproval_policy = \"never\"\n\n[features]\njs_repl = false\n");
 });
 
 test("installAppSurface writes state, fragment, report, and html", () => {
@@ -264,6 +344,22 @@ test("install-visible-ui patches a fake app idempotently and emits valid Python"
   assert.equal((indexText.match(/provider-studio-ui\.js/g) || []).length, 1);
   assert.equal(fs.existsSync(path.join(appDir, "content", "webview", "provider-studio-ui.js")), true);
   execFileSync("python3", ["-m", "py_compile", serverPath], { stdio: "pipe" });
+  const bridgeCheck = [
+    "import importlib.util, pathlib",
+    `p = pathlib.Path(${JSON.stringify(serverPath)})`,
+    "spec = importlib.util.spec_from_file_location('webview_server_under_test', p)",
+    "m = importlib.util.module_from_spec(spec)",
+    "spec.loader.exec_module(m)",
+    "existing = 'model=\"old\"\\nmodel_provider=\"old-root\"\\nprofile = \"work\"\\n\\n[profiles.work] # keep\\nmodel_provider = \"old-profile-provider\"\\n'",
+    "fragment = 'model = \"new\"\\nmodel_provider = \"provider-studio-new\"\\n\\n[model_providers.provider-studio-new]\\nbase_url = \"http://127.0.0.1:8317/v1\"\\n'",
+    "merged = m._ps_merge(existing, fragment)",
+    "assert 'model=\"old\"' not in merged",
+    "assert 'model_provider=\"old-root\"' not in merged",
+    "assert 'profile = \"work\"' in merged",
+    "assert '[profiles.work] # keep' in merged",
+    "assert 'model_provider = \"old-profile-provider\"' in merged",
+  ].join("\n");
+  execFileSync("python3", ["-c", bridgeCheck], { stdio: "pipe" });
 });
 
 test("install-visible-ui fails closed when app anchors drift", () => {

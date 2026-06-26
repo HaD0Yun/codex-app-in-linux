@@ -46,6 +46,19 @@ const PRESETS = Object.freeze([
     modelListPath: "/models",
     compatibility: "responses",
   }),
+  Object.freeze({
+    id: "cliproxyapi",
+    displayName: "CLIProxyAPI",
+    baseUrl: "http://127.0.0.1:8317/v1",
+    authType: "bearer",
+    modelListPath: "/models",
+    compatibility: "openai-compatible",
+    setup: {
+      mode: "local-proxy",
+      managementUrl: "http://127.0.0.1:8317/v0/management",
+      authDir: "~/.cli-proxy-api",
+    },
+  }),
 ]);
 
 class ProviderStudioError extends Error {
@@ -70,7 +83,7 @@ function redactValue(value) {
   if (value && typeof value === "object") {
     const redacted = {};
     for (const [key, child] of Object.entries(value)) {
-      redacted[key] = /apiKey|token|authorization|secret|credentialRef/i.test(key)
+      redacted[key] = /apiKey|token|authorization|secret|credentialRef|password|keyValue|managementKey/i.test(key)
         ? "[REDACTED]"
         : redactValue(child);
     }
@@ -91,7 +104,47 @@ function writeJson(filePath, value) {
   fs.writeFileSync(filePath, `${JSON.stringify(value, null, 2)}\n`, { mode: 0o600 });
 }
 
+function sanitizeSetup(input) {
+  const authMode = input.authMode || (input.localProxy && input.localProxy.enabled ? "local-proxy" : "env");
+  if (!["env", "local-proxy"].includes(authMode)) {
+    throw new ProviderStudioError("AUTH_MODE_UNSUPPORTED", "Provider Studio currently supports env and local-proxy auth modes.");
+  }
+  const setup = {
+    authMode,
+    credentialSource: null,
+    localProxy: input.localProxy || null,
+    management: input.management || null,
+  };
+  if (authMode === "local-proxy") {
+    setup.credentialSource = { type: "proxy-managed" };
+  } else if (envKeyFromCredentialRef(input.credentialRef)) {
+    setup.credentialSource = {
+      type: "env",
+      envKey: envKeyFromCredentialRef(input.credentialRef),
+    };
+  }
+  return redactValue(setup);
+}
+
+function isLoopbackHttpUrl(urlText) {
+  try {
+    const url = new URL(urlText);
+    if (!["http:", "https:"].includes(url.protocol)) return false;
+    const host = url.hostname.toLowerCase();
+    return host === "localhost" || host === "::1" || host === "[::1]" || /^127\./.test(host);
+  } catch {
+    return false;
+  }
+}
+
 function providerForApply(input) {
+  const setup = sanitizeSetup(input);
+  if (setup.authMode === "local-proxy" && !isLoopbackHttpUrl(input.baseUrl)) {
+    throw new ProviderStudioError("LOCAL_PROXY_NOT_LOOPBACK", "Local proxy mode requires a localhost or loopback base URL.");
+  }
+  if (setup.authMode === "local-proxy" && input.management && input.management.url && !isLoopbackHttpUrl(input.management.url)) {
+    throw new ProviderStudioError("LOCAL_MANAGEMENT_NOT_LOOPBACK", "Local proxy management URL must be localhost or loopback.");
+  }
   return {
     id: input.id,
     displayName: input.displayName,
@@ -103,6 +156,7 @@ function providerForApply(input) {
       credentialRef: envKeyFromCredentialRef(input.credentialRef) ? input.credentialRef : null,
     },
     defaultModel: input.defaultModel,
+    setup,
   };
 }
 
@@ -224,7 +278,9 @@ function createAppBridgeState(config) {
       modelListPath: provider.modelListPath || "/v1/models",
       compatibility: provider.compatibility,
       auth: provider.auth,
+      setup: provider.setup,
     },
+    setup: provider.setup,
     codex: {
       model: config.active.modelId,
       modelProvider: codexProviderId(provider.id),
@@ -295,7 +351,18 @@ function timestampForBackup() {
 
 function stripRootTomlKey(lines, key) {
   const pattern = new RegExp(`^\\s*${key}\\s*=`);
-  return lines.filter((line) => !pattern.test(line));
+  const result = [];
+  let inRoot = true;
+  for (const line of lines) {
+    if (/^\s*\[[^\]]+\]\s*(?:#.*)?$/.test(line)) {
+      inRoot = false;
+    }
+    if (inRoot && pattern.test(line)) {
+      continue;
+    }
+    result.push(line);
+  }
+  return result;
 }
 
 function stripTomlSection(lines, sectionName) {
@@ -330,7 +397,6 @@ function mergeCodexConfigText(existingText, fragment) {
   }
   lines = stripRootTomlKey(lines, "model");
   lines = stripRootTomlKey(lines, "model_provider");
-  lines = stripRootTomlKey(lines, "profile");
   lines = stripTomlSection(stripTomlSection(lines, "profiles.provider-studio"), `model_providers.${providerId}`);
   const fragmentLines = fragment.trim().split("\n");
   const firstSection = fragmentLines.findIndex((line) => line.trim().startsWith("["));
@@ -501,6 +567,8 @@ module.exports = {
   applyCodexConfigFragment,
   applyProvider,
   createAppBridge,
+  sanitizeSetup,
+  isLoopbackHttpUrl,
   createAppBridgeState,
   installAppSurface,
   latestCodexConfigBackup,

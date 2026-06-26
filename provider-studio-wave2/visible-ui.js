@@ -61,20 +61,31 @@
       padding: 8px;
       font: 13px system-ui;
     }
-    #provider-studio-provider-buttons {
+    #provider-studio-provider-buttons,
+    #provider-studio-auth-buttons {
       display: grid;
       grid-template-columns: 1fr;
       gap: 6px;
     }
-    #provider-studio-provider-buttons button {
+    #provider-studio-provider-buttons button,
+    #provider-studio-auth-buttons button {
       background: #020617;
       border: 1px solid #334155;
       color: #e5e7eb;
       text-align: left;
     }
-    #provider-studio-provider-buttons button.active {
+    #provider-studio-provider-buttons button.active,
+    #provider-studio-auth-buttons button.active {
       background: #1d4ed8;
       border-color: #60a5fa;
+    }
+    .provider-studio-card {
+      border: 1px solid #1e293b;
+      border-radius: 10px;
+      background: rgba(15, 23, 42, .72);
+      padding: 10px;
+      display: grid;
+      gap: 8px;
     }
     #provider-studio-panel button {
       background: #2563eb;
@@ -111,7 +122,7 @@
   panel.id = 'provider-studio-panel';
   panel.dataset.providerStudioPanel = 'true';
   panel.setAttribute('aria-label', 'Provider Studio provider and model switching');
-  panel.innerHTML = `<header><strong>Provider Studio</strong><button class="secondary" id="ps-close" type="button">Close</button></header><main><label>Provider<div id="provider-studio-provider-buttons" role="group" aria-label="Provider"><button type="button" class="active" data-provider-id="openai">OpenAI</button><button type="button" data-provider-id="openrouter">OpenRouter</button><button type="button" data-provider-id="local-openai-compatible">Local OpenAI-compatible</button><button type="button" data-provider-id="open-bigmodel">open.bigmodel</button><button type="button" data-provider-id="z-ai">z.ai</button></div></label><label>Base URL <input id="ps-base-url" value="https://api.openai.com" /></label><label>Model <input id="ps-model" value="gpt-5.5" /></label><label>Environment key for API key <input id="ps-env-key" value="OPENAI_API_KEY" /></label><button id="ps-apply" type="button" aria-label="Apply selection to Codex config">Apply selection to Codex config</button><button id="ps-restore" class="secondary" type="button" aria-label="Restore previous Codex config">Restore previous Codex config</button><button id="ps-refresh" class="secondary" type="button">Refresh state</button><div id="provider-studio-status">Loading...</div><small>Provider changes affect new Codex runtime work or after restart unless the app proves live switching.</small></main>`;
+  panel.innerHTML = `<header><strong>Provider Studio</strong><button class="secondary" id="ps-close" type="button">Close</button></header><main><label>Provider<div id="provider-studio-provider-buttons" role="group" aria-label="Provider"><button type="button" class="active" data-provider-id="openai">OpenAI</button><button type="button" data-provider-id="openrouter">OpenRouter</button><button type="button" data-provider-id="local-openai-compatible">Local OpenAI-compatible</button><button type="button" data-provider-id="open-bigmodel">open.bigmodel</button><button type="button" data-provider-id="z-ai">z.ai</button><button type="button" data-provider-id="cliproxyapi">CLIProxyAPI local proxy</button></div></label><section class="provider-studio-card"><strong>Setup</strong><div id="provider-studio-auth-buttons" role="group" aria-label="Authentication mode"><button type="button" class="active" data-auth-mode="env">Use env key</button><button type="button" data-auth-mode="local-proxy">Use local proxy/account pool</button></div><label>CLIProxyAPI management URL <input id="ps-management-url" value="http://127.0.0.1:8317/v0/management" /></label><label>Management key env name <input id="ps-management-key-env" value="CLIPROXY_MANAGEMENT_KEY" /></label></section><section class="provider-studio-card"><strong>Target</strong><label>Base URL <input id="ps-base-url" value="https://api.openai.com" /></label><label>Model <input id="ps-model" value="gpt-5.5" /></label><label>Environment key for API key <input id="ps-env-key" value="OPENAI_API_KEY" /></label></section><button id="ps-apply" type="button" aria-label="Apply selection to Codex config">Apply selection to Codex config</button><button id="ps-restore" class="secondary" type="button" aria-label="Restore previous Codex config">Restore previous Codex config</button><button id="ps-refresh" class="secondary" type="button">Refresh state</button><div id="provider-studio-status">Loading...</div><small>Provider changes affect new Codex runtime work or after restart unless the app proves live switching.</small></main>`;
   document.body.append(panel, fab);
 
   for (const eventName of ['pointerdown', 'pointerup', 'mousedown', 'mouseup', 'click', 'dblclick', 'keydown', 'keyup', 'input', 'change', 'wheel']) {
@@ -123,14 +134,16 @@
   const $ = (id) => panel.querySelector(id);
   const status = $('#provider-studio-status');
   const defaults = {
-    openai: { baseUrl: 'https://api.openai.com', model: 'gpt-5.5', envKey: 'OPENAI_API_KEY' },
-    openrouter: { baseUrl: 'https://openrouter.ai/api', model: 'openai/gpt-5.5', envKey: 'OPENROUTER_API_KEY' },
-    'local-openai-compatible': { baseUrl: 'http://127.0.0.1:11434', model: 'llama3.1', envKey: 'LOCAL_OPENAI_API_KEY' },
-    'open-bigmodel': { baseUrl: 'https://open.bigmodel.cn/api/paas/v4', model: 'glm-5.2', envKey: 'BIGMODEL_API_KEY' },
-    'z-ai': { baseUrl: 'http://127.0.0.1:8787/v1', model: 'glm-5.2', envKey: 'ZAI_API_KEY' },
+    openai: { baseUrl: 'https://api.openai.com', model: 'gpt-5.5', envKey: 'OPENAI_API_KEY', authMode: 'env' },
+    openrouter: { baseUrl: 'https://openrouter.ai/api', model: 'openai/gpt-5.5', envKey: 'OPENROUTER_API_KEY', authMode: 'env' },
+    'local-openai-compatible': { baseUrl: 'http://127.0.0.1:11434', model: 'llama3.1', envKey: 'LOCAL_OPENAI_API_KEY', authMode: 'local-proxy' },
+    'open-bigmodel': { baseUrl: 'https://open.bigmodel.cn/api/paas/v4', model: 'glm-5.2', envKey: 'BIGMODEL_API_KEY', authMode: 'env' },
+    'z-ai': { baseUrl: 'http://127.0.0.1:8787/v1', model: 'glm-5.2', envKey: 'ZAI_API_KEY', authMode: 'local-proxy' },
+    cliproxyapi: { baseUrl: 'http://127.0.0.1:8317/v1', model: 'gpt-5.5', envKey: 'CLIPROXY_API_KEY', authMode: 'local-proxy' },
   };
 
   let selectedProviderId = 'openai';
+  let selectedAuthMode = 'env';
 
   function selectProvider(providerId) {
     selectedProviderId = providerId;
@@ -142,6 +155,15 @@
     $('#ps-base-url').value = d.baseUrl;
     $('#ps-model').value = d.model;
     $('#ps-env-key').value = d.envKey;
+    selectAuthMode(d.authMode || 'env');
+  }
+
+  function selectAuthMode(authMode) {
+    selectedAuthMode = authMode;
+    for (const button of panel.querySelectorAll('[data-auth-mode]')) {
+      button.classList.toggle('active', button.dataset.authMode === authMode);
+      button.setAttribute('aria-pressed', String(button.dataset.authMode === authMode));
+    }
   }
 
   function setStatus(value) {
@@ -151,6 +173,10 @@
   for (const button of panel.querySelectorAll('[data-provider-id]')) {
     button.addEventListener('click', () => selectProvider(button.dataset.providerId));
   }
+  for (const button of panel.querySelectorAll('[data-auth-mode]')) {
+    button.addEventListener('click', () => selectAuthMode(button.dataset.authMode));
+  }
+
 
   async function call(path, payload) {
     const res = await fetch(path, payload ? { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(payload) } : { cache: 'no-store' });
@@ -171,6 +197,9 @@
       baseUrl: $('#ps-base-url').value.trim(),
       model: $('#ps-model').value.trim(),
       envKey: $('#ps-env-key').value.trim(),
+      authMode: selectedAuthMode,
+      managementUrl: $('#ps-management-url').value.trim(),
+      managementKeyEnv: $('#ps-management-key-env').value.trim(),
     };
     setStatus('Applying...');
     try {

@@ -25,12 +25,14 @@ const PROVIDER_STUDIO_SERVER_PATCH = `
 
 # Provider Studio API (installed by provider-studio-wave2 install-visible-ui)
 import json as _ps_json
+import re as _ps_re
 import pathlib as _ps_pathlib
 import tempfile as _ps_tempfile
 import time as _ps_time
+import urllib.parse as _ps_urlparse
 
 _PROVIDER_STUDIO_MAX_BODY = 8192
-_PROVIDER_STUDIO_IDS = {"openai", "openrouter", "local-openai-compatible", "open-bigmodel", "z-ai"}
+_PROVIDER_STUDIO_IDS = {"openai", "openrouter", "local-openai-compatible", "open-bigmodel", "z-ai", "cliproxyapi"}
 
 def _ps_root():
     webview_dir = _ps_pathlib.Path.cwd()
@@ -54,10 +56,18 @@ def _ps_provider_key(provider_id):
     return "provider-studio-" + "".join(ch if ch.isalnum() or ch in "_-" else "-" for ch in provider_id)
 
 def _ps_display(provider_id):
-    return {"openai":"OpenAI","openrouter":"OpenRouter","local-openai-compatible":"Local OpenAI-compatible","open-bigmodel":"open.bigmodel","z-ai":"z.ai"}.get(provider_id, provider_id)
+    return {"openai":"OpenAI","openrouter":"OpenRouter","local-openai-compatible":"Local OpenAI-compatible","open-bigmodel":"open.bigmodel","z-ai":"z.ai","cliproxyapi":"CLIProxyAPI"}.get(provider_id, provider_id)
 
 def _ps_wire(provider_id):
     return "responses" if provider_id in {"openai", "z-ai"} else "chat"
+
+def _ps_is_loopback_url(value):
+    try:
+        parsed = _ps_urlparse.urlparse(value)
+        host = (parsed.hostname or "").lower()
+        return parsed.scheme in {"http", "https"} and (host == "localhost" or host == "::1" or host.startswith("127."))
+    except Exception:
+        return False
 
 def _ps_fragment(payload):
     provider_id = payload["providerId"]
@@ -68,15 +78,22 @@ def _ps_fragment(payload):
     return "\\n".join(lines) + "\\n"
 
 def _ps_strip_root(lines, key):
-    return [line for line in lines if not line.strip().startswith(key + " =")]
+    out=[]; in_root=True; pattern=_ps_re.compile(r"^\\s*" + _ps_re.escape(key) + r"\\s*=")
+    for line in lines:
+        if _ps_re.match(r"^\\s*\\[[^\\]]+\\]\\s*(?:#.*)?$", line):
+            in_root=False
+        if in_root and pattern.match(line):
+            continue
+        out.append(line)
+    return out
 
 def _ps_strip_section(lines, section):
-    out=[]; skipping=False; target=f"[{section}]"
+    out=[]; skipping=False; target=_ps_re.compile(r"^\\s*\\[" + _ps_re.escape(section) + r"\\]\\s*(?:#.*)?$")
     for line in lines:
-        stripped=line.strip()
-        if stripped == target:
+        is_section = _ps_re.match(r"^\\s*\\[[^\\]]+\\]\\s*(?:#.*)?$", line)
+        if target.match(line):
             skipping=True; continue
-        if skipping and stripped.startswith("[") and stripped.endswith("]"):
+        if skipping and is_section:
             skipping=False
         if not skipping:
             out.append(line)
@@ -86,7 +103,7 @@ def _ps_merge(existing, fragment):
     provider_key = next(line for line in fragment.splitlines() if line.startswith("model_provider =")).split("=",1)[1].strip().strip('"')
     lines = existing.replace("\\r\\n","\\n").replace("\\r","\\n").split("\\n") if existing else []
     if lines and lines[-1] == "": lines.pop()
-    lines = _ps_strip_root(_ps_strip_root(_ps_strip_root(lines, "model"), "model_provider"), "profile")
+    lines = _ps_strip_root(_ps_strip_root(lines, "model"), "model_provider")
     lines = _ps_strip_section(_ps_strip_section(lines, "profiles.provider-studio"), f"model_providers.{provider_key}")
     fragment_lines = fragment.strip().split("\\n")
     first_section = next((i for i, line in enumerate(fragment_lines) if line.strip().startswith("[")), len(fragment_lines))
@@ -103,15 +120,22 @@ def _ps_validate(payload):
     for key in ("baseUrl", "model"):
         if not isinstance(payload.get(key), str) or not payload[key].strip(): raise ValueError(f"missing {key}")
     if payload.get("envKey") and not __import__("re").match(r"^[A-Za-z_][A-Za-z0-9_]*$", payload["envKey"]): raise ValueError("invalid envKey")
+    if payload.get("managementKeyEnv") and not __import__("re").match(r"^[A-Za-z_][A-Za-z0-9_]*$", payload["managementKeyEnv"]): raise ValueError("invalid managementKeyEnv")
     if not (payload["baseUrl"].startswith("http://") or payload["baseUrl"].startswith("https://")): raise ValueError("invalid baseUrl")
-    return {"providerId":payload["providerId"], "baseUrl":payload["baseUrl"].strip(), "model":payload["model"].strip(), "envKey":str(payload.get("envKey") or "").strip()}
+    auth_mode = str(payload.get("authMode") or "env")
+    if auth_mode not in {"env", "local-proxy"}: raise ValueError("invalid authMode")
+    if auth_mode == "local-proxy" and not _ps_is_loopback_url(payload["baseUrl"]): raise ValueError("local proxy baseUrl must be localhost or loopback")
+    if auth_mode == "local-proxy" and payload.get("managementUrl") and not _ps_is_loopback_url(payload["managementUrl"]): raise ValueError("managementUrl must be localhost or loopback")
+    return {"providerId":payload["providerId"], "baseUrl":payload["baseUrl"].strip(), "model":payload["model"].strip(), "envKey":str(payload.get("envKey") or "").strip(), "authMode":auth_mode, "managementUrl":str(payload.get("managementUrl") or "").strip(), "managementKeyEnv":str(payload.get("managementKeyEnv") or "").strip()}
 
 def _ps_apply(payload):
     payload=_ps_validate(payload); root=_ps_root(); fragment=_ps_fragment(payload)
-    state={"schemaVersion":1,"active":{"providerId":payload["providerId"],"modelId":payload["model"]},"provider":{"id":payload["providerId"],"displayName":_ps_display(payload["providerId"]),"baseUrl":payload["baseUrl"],"auth":{"type":"bearer","credentialRef":f"env:{payload['envKey']}" if payload.get("envKey") else None}},"codex":{"model":payload["model"],"modelProvider":_ps_provider_key(payload["providerId"]),"wireApi":_ps_wire(payload["providerId"]),"configFragment":fragment}}
+    setup={"authMode":payload["authMode"],"credentialSource":{"type":"env","envKey":payload["envKey"]} if payload.get("envKey") else None,"localProxy":{"enabled":payload["authMode"]=="local-proxy","baseUrl":payload["baseUrl"]},"management":{"url":payload.get("managementUrl"),"keyEnv":payload.get("managementKeyEnv")}}
+    if payload["authMode"] == "local-proxy": setup["credentialSource"]={"type":"proxy-managed"}
+    state={"schemaVersion":1,"active":{"providerId":payload["providerId"],"modelId":payload["model"]},"provider":{"id":payload["providerId"],"displayName":_ps_display(payload["providerId"]),"baseUrl":payload["baseUrl"],"auth":{"type":"bearer","credentialRef":f"env:{payload['envKey']}" if payload.get("envKey") else None},"setup":setup},"setup":setup,"codex":{"model":payload["model"],"modelProvider":_ps_provider_key(payload["providerId"]),"wireApi":_ps_wire(payload["providerId"]),"configFragment":fragment}}
     (root/"state.json").write_text(_ps_json.dumps(state, indent=2)+"\\n", encoding="utf-8"); (root/"codex-config.provider-studio.toml").write_text(fragment, encoding="utf-8")
     home=_ps_pathlib.Path(os.environ.get("CODEX_HOME") or _ps_pathlib.Path.home()/".codex"); cfg=home/"config.toml"; cfg.parent.mkdir(parents=True, exist_ok=True)
-    existing=cfg.read_text(encoding="utf-8") if cfg.exists() else ""; backup=cfg.with_name(cfg.name+".provider-studio-backup-"+_ps_time.strftime("%Y%m%dT%H%M%SZ")); backup.write_text(existing, encoding="utf-8")
+    existing=cfg.read_text(encoding="utf-8") if cfg.exists() else ""; backup=cfg.with_name(cfg.name+".provider-studio-backup-"+_ps_time.strftime("%Y%m%dT%H%M%SZ")); backup.write_text(existing, encoding="utf-8"); backup.chmod(0o600)
     fd, tmp_name = _ps_tempfile.mkstemp(prefix=cfg.name+".", suffix=".tmp", dir=str(cfg.parent)); os.close(fd); tmp=_ps_pathlib.Path(tmp_name); tmp.write_text(_ps_merge(existing, fragment), encoding="utf-8"); tmp.chmod(0o600); tmp.replace(cfg)
     (home/"provider-studio.config.toml").write_text(f"model = {_ps_q(payload['model'])}\\nmodel_provider = {_ps_q(_ps_provider_key(payload['providerId']))}\\n", encoding="utf-8")
     return {"ok":True,"state":state,"configPath":str(cfg),"backupPath":str(backup),"fragmentPath":str(root/"codex-config.provider-studio.toml")}
