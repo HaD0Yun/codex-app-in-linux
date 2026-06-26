@@ -44,7 +44,7 @@ function providerInput(overrides = {}) {
 
 test("provider presets include OpenAI-compatible targets", () => {
   const ids = PRESETS.map((preset) => preset.id);
-  assert.deepEqual(ids, ["openai", "openrouter", "local-openai-compatible"]);
+  assert.deepEqual(ids, ["openai", "openrouter", "local-openai-compatible", "open-bigmodel", "z-ai"]);
 });
 
 test("doctor discovers models from a mock OpenAI-compatible provider", async () => {

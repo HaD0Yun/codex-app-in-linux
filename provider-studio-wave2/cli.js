@@ -30,7 +30,7 @@ import tempfile as _ps_tempfile
 import time as _ps_time
 
 _PROVIDER_STUDIO_MAX_BODY = 8192
-_PROVIDER_STUDIO_IDS = {"openai", "openrouter", "local-openai-compatible"}
+_PROVIDER_STUDIO_IDS = {"openai", "openrouter", "local-openai-compatible", "open-bigmodel", "z-ai"}
 
 def _ps_root():
     webview_dir = _ps_pathlib.Path.cwd()
@@ -54,7 +54,7 @@ def _ps_provider_key(provider_id):
     return "provider-studio-" + "".join(ch if ch.isalnum() or ch in "_-" else "-" for ch in provider_id)
 
 def _ps_display(provider_id):
-    return {"openai":"OpenAI","openrouter":"OpenRouter","local-openai-compatible":"Local OpenAI-compatible"}.get(provider_id, provider_id)
+    return {"openai":"OpenAI","openrouter":"OpenRouter","local-openai-compatible":"Local OpenAI-compatible","open-bigmodel":"open.bigmodel","z-ai":"z.ai"}.get(provider_id, provider_id)
 
 def _ps_wire(provider_id):
     return "responses" if provider_id == "openai" else "chat"

@@ -30,6 +30,22 @@ const PRESETS = Object.freeze([
     modelListPath: "/v1/models",
     compatibility: "openai-compatible",
   }),
+  Object.freeze({
+    id: "open-bigmodel",
+    displayName: "open.bigmodel",
+    baseUrl: "https://open.bigmodel.cn/api/paas/v4",
+    authType: "bearer",
+    modelListPath: "/models",
+    compatibility: "openai-compatible",
+  }),
+  Object.freeze({
+    id: "z-ai",
+    displayName: "z.ai",
+    baseUrl: "https://api.z.ai/api/coding/paas/v4",
+    authType: "bearer",
+    modelListPath: "/models",
+    compatibility: "openai-compatible",
+  }),
 ]);
 
 class ProviderStudioError extends Error {
