@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "brief": "Improve Provider Studio so Codex Desktop exposes a visible provider/model switching surface instead of only CLI/bridge files. Continue in /home/yun/tmp/codex-app-in-linux on branch feature/provider-studio-wave1. Preserve app launch. Prefer safe source-level or wrapper-level UI integration over brittle generated bundle mutation. Verify either a visible UI surface with provider/model switching evidence or a clearly proven source boundary plus the closest safe installed surface. Keep secrets redacted; no real provider credentials; use mock providers for tests. Do not push until verified.",
+  "gjcGoalMode": "aggregate",
+  "gjcObjective": "Complete the durable ultragoal plan in .gjc/ultragoal/goals.json, including later accepted/appended stories, under the original brief constraints; use .gjc/ultragoal/ledger.jsonl as the audit trail.",
+  "goals": [
+    {
+      "id": "G001",
+      "title": "Improve Provider Studio so Codex Desktop exposes a visible provider/model swi...",
+      "objective": "Improve Provider Studio so Codex Desktop exposes a visible provider/model switching surface instead of only CLI/bridge files. Continue in /home/yun/tmp/codex-app-in-linux on branch feature/provider-studio-wave1. Preserve app launch. Prefer safe source-level or wrapper-level UI integration over brittle generated bundle mutation. Verify either a visible UI surface with provider/model switching evidence or a clearly proven source boundary plus the closest safe installed surface. Keep secrets redacted; no real provider credentials; use mock providers for tests. Do not push until verified.",
+      "status": "complete",
+      "createdAt": "2026-06-26T10:44:00.984Z",
+      "updatedAt": "2026-06-26T11:43:02.139Z",
+      "startedAt": "2026-06-26T10:44:09.262Z",
+      "evidence": "G001 complete: Provider Studio visible webview overlay now exposes provider/model switching in Codex Desktop installed app; source installer is transactional/idempotent/fail-closed, credential-safe, fd-safe, and stale-patch-cleaning. Commit fb16dab pushed to origin/feature/provider-studio-wave1. Verification covered .gjc/ultragoal G001 with node checks/tests/smokes, installed py_compile, browser UI apply/restore, final architect CLEAR/APPROVE and executor QA passed.",
+      "completedAt": "2026-06-26T11:43:02.139Z",
+      "completionVerification": {
+        "schemaVersion": 1,
+        "receiptId": "2b3e0567-ca68-4212-8b89-219f56d06800",
+        "verifiedAt": "2026-06-26T11:43:02.139Z",
+        "goalId": "G001",
+        "receiptKind": "final-aggregate",
+        "goalStatusBeforeCheckpoint": "active",
+        "gjcGoalMode": "aggregate",
+        "gjcObjective": "Complete the durable ultragoal plan in .gjc/ultragoal/goals.json, including later accepted/appended stories, under the original brief constraints; use .gjc/ultragoal/ledger.jsonl as the audit trail.",
+        "qualityGateHash": "64ff99c2ab72b4f8f43c468884944c9e629c7c6e9619cad557fada099e9c1305",
+        "gjcGoalSnapshotHash": "3aecc38d30d1c9d3870e873f633d8c0db8d8e21b4cc728a868266c227726d38f",
+        "planGeneration": "865419df21f5b7382df01d9f2699d8dc9698dd8be92747aafcd6a2e8b20a0b44",
+        "basis": {
+          "planHashBeforeCheckpoint": "0cb544e0df8c67cbc38d792950fca7bb89aba5be4418966b10ce4ac1d53af2d3",
+          "latestRelevantLedgerEventIdBeforeCheckpoint": "44684293-7a27-42cc-b1de-676f2018509e",
+          "goalUpdatedAtBeforeCheckpoint": "2026-06-26T11:43:02.139Z",
+          "relevantGoalIdsBeforeCheckpoint": [
+            "G001"
+          ],
+          "requiredGoalSetHashBeforeCheckpoint": "065d9d0a7a2ae61eccf55e82d4e078979a59c0d389fd4357872fba728bb72268"
+        },
+        "checkpointLedgerEventId": "0ceb3c0e-9729-4f78-b993-e92efb874b47"
+      }
+    }
+  ],
+  "createdAt": "2026-06-26T10:44:00.984Z",
+  "updatedAt": "2026-06-26T11:43:02.139Z",
+  "state_revision": 5
+}
