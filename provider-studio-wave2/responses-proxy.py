@@ -141,7 +141,42 @@ class Handler(BaseHTTPRequestHandler):
             return
         if self.path.startswith("/v1/models") or self.path.startswith("/models"):
             model = os.environ.get("PROVIDER_STUDIO_PROXY_MODEL") or "glm-5.2"
-            model_row = {"id": model, "slug": model, "name": model, "display_name": model, "supported_reasoning_levels": []}
+            model_row = {
+                "prefer_websockets": False,
+                "support_verbosity": False,
+                "default_verbosity": "low",
+                "apply_patch_tool_type": "freeform",
+                "web_search_tool_type": "text_and_image",
+                "input_modalities": ["text"],
+                "supports_image_detail_original": False,
+                "truncation_policy": {"mode": "tokens", "limit": 10000},
+                "supports_parallel_tool_calls": True,
+                "context_window": 128000,
+                "max_context_window": 128000,
+                "auto_compact_token_limit": None,
+                "reasoning_summary_format": "none",
+                "default_reasoning_summary": "none",
+                "slug": model,
+                "display_name": model,
+                "description": "Provider Studio local Responses adapter",
+                "default_reasoning_level": None,
+                "supported_reasoning_levels": [],
+                "shell_type": "shell_command",
+                "visibility": "list",
+                "minimal_client_version": "0.124.0",
+                "supported_in_api": True,
+                "availability_nux": None,
+                "upgrade": None,
+                "priority": 99,
+                "base_instructions": "You are Codex.",
+                "model_messages": {"instructions_template": "", "instructions_variables": {}},
+                "experimental_supported_tools": [],
+                "available_in_plans": ["free", "plus", "pro", "team", "enterprise"],
+                "supports_search_tool": False,
+                "service_tiers": [],
+                "additional_speed_tiers": [],
+                "supports_reasoning_summaries": False,
+            }
             self._json(200, {"models": [model_row], "object": "list", "data": [{"id": model, "object": "model", "owned_by": "provider-studio"}]})
             return
         self._json(404, {"error": {"message": "not found"}})
