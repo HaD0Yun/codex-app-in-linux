@@ -126,7 +126,7 @@
     openrouter: { baseUrl: 'https://openrouter.ai/api', model: 'openai/gpt-5.5', envKey: 'OPENROUTER_API_KEY' },
     'local-openai-compatible': { baseUrl: 'http://127.0.0.1:11434', model: 'llama3.1', envKey: 'LOCAL_OPENAI_API_KEY' },
     'open-bigmodel': { baseUrl: 'https://open.bigmodel.cn/api/paas/v4', model: 'glm-5.2', envKey: 'BIGMODEL_API_KEY' },
-    'z-ai': { baseUrl: 'https://api.z.ai/api/coding/paas/v4', model: 'glm-5.2', envKey: 'ZAI_API_KEY' },
+    'z-ai': { baseUrl: 'http://127.0.0.1:8787/v1', model: 'glm-5.2', envKey: 'ZAI_API_KEY' },
   };
 
   let selectedProviderId = 'openai';

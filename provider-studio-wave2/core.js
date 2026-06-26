@@ -41,10 +41,10 @@ const PRESETS = Object.freeze([
   Object.freeze({
     id: "z-ai",
     displayName: "z.ai",
-    baseUrl: "https://api.z.ai/api/coding/paas/v4",
+    baseUrl: "http://127.0.0.1:8787/v1",
     authType: "bearer",
     modelListPath: "/models",
-    compatibility: "openai-compatible",
+    compatibility: "responses",
   }),
 ]);
 
@@ -294,14 +294,8 @@ function timestampForBackup() {
 }
 
 function stripRootTomlKey(lines, key) {
-  let inRoot = true;
   const pattern = new RegExp(`^\\s*${key}\\s*=`);
-  return lines.filter((line) => {
-    if (/^\s*\[[^\]]+\]\s*(?:#.*)?$/.test(line)) {
-      inRoot = false;
-    }
-    return !(inRoot && pattern.test(line));
-  });
+  return lines.filter((line) => !pattern.test(line));
 }
 
 function stripTomlSection(lines, sectionName) {
@@ -336,12 +330,17 @@ function mergeCodexConfigText(existingText, fragment) {
   }
   lines = stripRootTomlKey(lines, "model");
   lines = stripRootTomlKey(lines, "model_provider");
-  lines = stripTomlSection(lines, `model_providers.${providerId}`);
-  while (lines.length > 0 && lines.at(-1).trim() === "") {
-    lines.pop();
-  }
-  const prefix = lines.length > 0 ? `${lines.join("\n")}\n\n` : "";
-  return `${prefix}${fragment.trim()}\n`;
+  lines = stripRootTomlKey(lines, "profile");
+  lines = stripTomlSection(stripTomlSection(lines, "profiles.provider-studio"), `model_providers.${providerId}`);
+  const fragmentLines = fragment.trim().split("\n");
+  const firstSection = fragmentLines.findIndex((line) => line.trim().startsWith("["));
+  const rootFragment = (firstSection === -1 ? fragmentLines : fragmentLines.slice(0, firstSection)).join("\n");
+  const sectionFragment = firstSection === -1 ? "" : fragmentLines.slice(firstSection).join("\n");
+  while (lines.length > 0 && lines[0].trim() === "") lines.shift();
+  while (lines.length > 0 && lines.at(-1).trim() === "") lines.pop();
+  const body = lines.length > 0 ? `\n\n${lines.join("\n")}` : "";
+  const sections = sectionFragment ? `\n\n${sectionFragment}` : "";
+  return `${rootFragment}${body}${sections}\n`;
 }
 
 function applyCodexConfigFragment(configPath, fragment, options = {}) {

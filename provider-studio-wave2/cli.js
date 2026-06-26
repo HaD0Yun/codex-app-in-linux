@@ -57,7 +57,7 @@ def _ps_display(provider_id):
     return {"openai":"OpenAI","openrouter":"OpenRouter","local-openai-compatible":"Local OpenAI-compatible","open-bigmodel":"open.bigmodel","z-ai":"z.ai"}.get(provider_id, provider_id)
 
 def _ps_wire(provider_id):
-    return "responses" if provider_id == "openai" else "chat"
+    return "responses" if provider_id in {"openai", "z-ai"} else "chat"
 
 def _ps_fragment(payload):
     provider_id = payload["providerId"]
@@ -68,15 +68,7 @@ def _ps_fragment(payload):
     return "\\n".join(lines) + "\\n"
 
 def _ps_strip_root(lines, key):
-    out=[]; in_root=True
-    for line in lines:
-        stripped=line.strip()
-        if stripped.startswith("[") and stripped.endswith("]"):
-            in_root=False
-        if in_root and stripped.startswith(key + " ="):
-            continue
-        out.append(line)
-    return out
+    return [line for line in lines if not line.strip().startswith(key + " =")]
 
 def _ps_strip_section(lines, section):
     out=[]; skipping=False; target=f"[{section}]"
@@ -94,9 +86,17 @@ def _ps_merge(existing, fragment):
     provider_key = next(line for line in fragment.splitlines() if line.startswith("model_provider =")).split("=",1)[1].strip().strip('"')
     lines = existing.replace("\\r\\n","\\n").replace("\\r","\\n").split("\\n") if existing else []
     if lines and lines[-1] == "": lines.pop()
-    lines = _ps_strip_section(_ps_strip_root(_ps_strip_root(lines, "model"), "model_provider"), f"model_providers.{provider_key}")
+    lines = _ps_strip_root(_ps_strip_root(_ps_strip_root(lines, "model"), "model_provider"), "profile")
+    lines = _ps_strip_section(_ps_strip_section(lines, "profiles.provider-studio"), f"model_providers.{provider_key}")
+    fragment_lines = fragment.strip().split("\\n")
+    first_section = next((i for i, line in enumerate(fragment_lines) if line.strip().startswith("[")), len(fragment_lines))
+    root_fragment = "\\n".join(fragment_lines[:first_section])
+    section_fragment = "\\n".join(fragment_lines[first_section:])
+    while lines and not lines[0].strip(): lines.pop(0)
     while lines and not lines[-1].strip(): lines.pop()
-    return (("\\n".join(lines) + "\\n\\n") if lines else "") + fragment.strip() + "\\n"
+    body = ("\\n\\n" + "\\n".join(lines)) if lines else ""
+    sections = ("\\n\\n" + section_fragment) if section_fragment else ""
+    return root_fragment + body + sections + "\\n"
 
 def _ps_validate(payload):
     if payload.get("providerId") not in _PROVIDER_STUDIO_IDS: raise ValueError("invalid providerId")
@@ -113,6 +113,7 @@ def _ps_apply(payload):
     home=_ps_pathlib.Path(os.environ.get("CODEX_HOME") or _ps_pathlib.Path.home()/".codex"); cfg=home/"config.toml"; cfg.parent.mkdir(parents=True, exist_ok=True)
     existing=cfg.read_text(encoding="utf-8") if cfg.exists() else ""; backup=cfg.with_name(cfg.name+".provider-studio-backup-"+_ps_time.strftime("%Y%m%dT%H%M%SZ")); backup.write_text(existing, encoding="utf-8")
     fd, tmp_name = _ps_tempfile.mkstemp(prefix=cfg.name+".", suffix=".tmp", dir=str(cfg.parent)); os.close(fd); tmp=_ps_pathlib.Path(tmp_name); tmp.write_text(_ps_merge(existing, fragment), encoding="utf-8"); tmp.chmod(0o600); tmp.replace(cfg)
+    (home/"provider-studio.config.toml").write_text(f"model = {_ps_q(payload['model'])}\\nmodel_provider = {_ps_q(_ps_provider_key(payload['providerId']))}\\n", encoding="utf-8")
     return {"ok":True,"state":state,"configPath":str(cfg),"backupPath":str(backup),"fragmentPath":str(root/"codex-config.provider-studio.toml")}
 
 def _ps_restore():
