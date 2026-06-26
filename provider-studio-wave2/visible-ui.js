@@ -14,7 +14,7 @@
     #provider-studio-fab {
       position: fixed;
       right: 18px;
-      bottom: 18px;
+      top: 18px;
       z-index: 2147483647;
       border: 1px solid rgba(255,255,255,.18);
       background: #111827;
@@ -28,9 +28,10 @@
     #provider-studio-panel {
       position: fixed;
       right: 18px;
-      bottom: 64px;
+      top: 64px;
       width: 400px;
       max-width: calc(100vw - 36px);
+      max-height: calc(100vh - 82px);
       z-index: 2147483647;
       background: #0b0f19;
       color: #e5e7eb;
@@ -50,7 +51,7 @@
       background: #111827;
       border-bottom: 1px solid rgba(255,255,255,.12);
     }
-    #provider-studio-panel main { padding: 14px; display: grid; gap: 10px; }
+    #provider-studio-panel main { padding: 14px; display: grid; gap: 10px; max-height: calc(100vh - 132px); overflow: auto; }
     #provider-studio-panel label { display: grid; gap: 5px; color: #cbd5e1; }
     #provider-studio-panel input {
       background: #020617;
