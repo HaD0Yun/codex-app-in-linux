@@ -1,0 +1,46 @@
+{
+  "generated_at": "2026-06-30T09:37:00Z",
+  "scope": "Lane B credential-free verification for CLIProxyAPI helper and docs in worker-2 worktree",
+  "credential_free": true,
+  "native_install_or_service_flows_run": false,
+  "generated_app_or_proprietary_artifacts_required": false,
+  "live_cliproxyapi_routing_claimed": false,
+  "files_checked": [
+    "scripts/codex-multi-model-config.py",
+    "tests/test_codex_multi_model_config.py",
+    "README.md",
+    "reports/multi-model-selection-first-pass.md"
+  ],
+  "commands_passed": [
+    "python3 -m py_compile scripts/codex-multi-model-config.py tests/test_codex_multi_model_config.py",
+    "python3 -m unittest tests.test_codex_multi_model_config"
+  ],
+  "checks": [
+    {
+      "name": "Default helper targets CLIProxyAPI data plane",
+      "passed": true,
+      "detail": "Default snippet uses provider cliproxyapi, model cliproxyapi/default, base_url http://127.0.0.1:8317/v1, wire_api responses, and env_key CLIPROXYAPI_PROXY_CLIENT_KEY."
+    },
+    {
+      "name": "Management key rejected for Codex data plane",
+      "passed": true,
+      "detail": "Helper exits non-zero when --env-key CLIPROXYAPI_MANAGEMENT_KEY is requested."
+    },
+    {
+      "name": "Append and dry-run behavior covered",
+      "passed": true,
+      "detail": "Dry-run with --append leaves target unchanged; append writes the provider block once; repeated append refuses without --force."
+    },
+    {
+      "name": "No secret leakage in tests or evidence",
+      "passed": true,
+      "detail": "Tests use only placeholder token text and env-key names; no live credentials are required or recorded."
+    },
+    {
+      "name": "Docs static constraints covered",
+      "passed": true,
+      "detail": "README and first-pass report mention CLIProxyAPI 8317, bridge/BFF, bubble path, and OpenCodex 10100 supersession without claiming live routing was performed."
+    }
+  ],
+  "overall_pass": true
+}

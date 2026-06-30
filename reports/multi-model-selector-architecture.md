@@ -1,113 +1,186 @@
-# Multi-model selection architecture notes
+# CLIProxyAPI bubble architecture notes
 
 Date: 2026-06-30
-Lane: C — Architecture
+Lane: C — Architecture/manual QA
 Status: WATCH
 
 ## Scope
 
-This note assesses the safest first-pass integration shape for multi-model selection in this Linux Codex Desktop wrapper repository. It compares three similarly named OpenCodex projects and intentionally avoids app binary patches, native install/update/service flows, sudo, package-manager installs, generated bundles, and proprietary artifact redistribution.
+This note supersedes the earlier OpenCodex/opencodex `localhost:10100` first-pass direction. The approved direction is CLIProxyAPI on loopback, with Codex data-plane traffic proved first and dashboard-like controls surfaced through a wrapper-owned bubble backed by a privileged bridge/BFF.
 
-## Recommendation
+This repository still preserves the Linux wrapper safety boundary: no app binary patches, no generated/proprietary bundle patching, no native install/update/service flows, no sudo/package-manager mutation, and no proprietary artifact redistribution.
 
-Use a local Responses API proxy plus Codex model-provider configuration as the first-pass shape.
+## Current decision
 
-For this repo, the least invasive pattern is:
-
-1. Keep the Linux wrapper and generated Codex Desktop app unchanged.
-2. Run a separately installed local proxy on loopback only, preferably `127.0.0.1`.
-3. Point Codex at that proxy with `~/.codex/config.toml` using `wire_api = "responses"` and a local `base_url`.
-4. Let the proxy translate Codex `/v1/responses` traffic to upstream provider APIs and publish models into the Codex model picker/catalog where the proxy supports that.
-5. Document reset/recovery clearly because provider mappings, model aliases, and conversation metadata can become gateway-dependent.
-
-A minimal provider block shape is:
-
-```toml
-model_provider = "opencodex"
-model = "provider/model-name"
-
-[model_providers.opencodex]
-name = "opencodex"
-base_url = "http://127.0.0.1:10100/v1"
-wire_api = "responses"
-```
-
-This keeps the feature reversible and preserves the repo's current safety boundary: no privileged install path, no updater/service enablement, no app bundle redistribution, and no binary patching.
-
-## Project comparison
-
-| Project | Architecture fit | Notes | First-pass decision |
-| --- | --- | --- | --- |
-| `lidge-jun/opencodex` | Strong fit for a universal local Responses API proxy. | README describes Codex CLI/App/SDK sending `/v1/responses` to `opencodex`, which translates to Anthropic, Google, xAI, Kimi, Ollama Cloud, Groq, OpenRouter, Azure, DeepSeek, GLM, OpenAI-compatible endpoints, and OpenAI itself. It documents `localhost:10100`, model routing with `provider/model`, Codex App model picker integration, and loopback-by-default behavior. | Best baseline for README/helper guidance. Recommend loopback manual start (`ocx start`) for first pass; defer service/shim/autostart paths. |
-| `AITabby/opencodex` | Strong desktop-centric gateway fit, but broader than the first pass. | README describes a Codex Desktop local gateway at `127.0.0.1:8765`, dashboard, managed `~/.codex/config.toml`, custom model catalog under `~/.opencodex/custom_model_catalog.json`, native GPT pass-through, third-party `/chat/completions` translation, model continuity notes, Vision Bridge, and Computer Use/voice features. Prerequisites focus on macOS/Windows; Linux is not the documented target. | Useful reference for model catalog/continuity UX and reset warnings. Do not adopt Computer Use, voice, restart, or platform-specific companion pieces in this repo's first pass. |
-| `RyensX/OpenCodex` | Not a model-provider proxy. | README describes a browser/LAN middleware for operating Codex Desktop from phone/tablet/another computer. It supports local/LAN/remote-LAN access, password auth, launcher configuration, and Codex Desktop bundle discovery. Linux is noted as untested. | Out of scope for multi-model selection. Mention only as a non-goal to prevent confusing it with provider routing. |
-
-## Safest integration shape
-
-### Boundary
-
-The repo should provide documentation and optional helper material only. The helper may print or write a user-owned Codex config snippet, but it should not:
-
-- patch the Codex Desktop app binary or generated app bundle;
-- modify wrapper source under `upstream/`;
-- install system services or autostart units;
-- invoke `sudo`, `systemctl`, package-manager installs, `make install-*`, `make setup-*`, `make update-*`, or native service paths;
-- collect or store provider API keys in this repo;
-- redistribute OpenAI, Codex Desktop, or provider artifacts.
-
-### Runtime flow
+Use CLIProxyAPI as the execution backend, not an OpenCodex dashboard flow.
 
 ```text
 Codex Desktop / CLI
-  -> ~/.codex/config.toml model_provider = opencodex
-  -> http://127.0.0.1:<proxy-port>/v1/responses
-  -> local proxy provider router
-  -> upstream provider API or local model endpoint
+  -> ~/.codex/config.toml model_provider = cliproxyapi
+  -> http://127.0.0.1:8317/v1/responses
+  -> CLIProxyAPI data-plane router
+  -> upstream provider API, account pool, or local model endpoint
 ```
 
-The wrapper remains responsible only for launching Codex Desktop on Linux. The proxy remains an external user-run dependency.
+The expected management surface is `http://localhost:8317/v0/management`, but renderer code must not call it directly. Management requests require a bearer token or `X-Management-Key`, even on localhost, so the key belongs only in a privileged wrapper-owned bridge/BFF process.
 
-### Config and model picker
+A minimal Codex provider shape is:
 
-Prefer a provider config block with `wire_api = "responses"`. Do not rely on undocumented app internals when the Codex config surface can already route Responses API traffic.
+```toml
+model = "cliproxyapi/default"
+model_provider = "cliproxyapi"
 
-For model picker support, prefer proxy-managed catalogs where available (`lidge-jun/opencodex` model picker support or `AITabby/opencodex` custom model catalog). This repo should document the concept, not synthesize or mutate private catalog files unless a future task verifies the exact current Codex catalog contract.
+[model_providers.cliproxyapi]
+name = "CLIProxyAPI"
+base_url = "http://127.0.0.1:8317/v1"
+env_key = "CLIPROXYAPI_PROXY_CLIENT_KEY"
+wire_api = "responses"
+```
 
-### Loopback and auth
+`CLIPROXYAPI_PROXY_CLIENT_KEY` is a data-plane proxy client key. It is distinct from the CLIProxyAPI management key, upstream provider secrets, and Codex OAuth/auth state.
 
-Keep first-pass examples on `127.0.0.1`. If users intentionally bind a proxy to LAN (`0.0.0.0`), require explicit bearer-token guidance and warn that the data-plane carries prompts, files, tool calls, and potentially credentials. `lidge-jun/opencodex` documents refusing non-loopback start without `OPENCODEX_API_AUTH_TOKEN`; preserve that safety posture in repo guidance.
+## Data-plane proof gate
 
-### Conversation compatibility
+No bubble, overlay, live-routing, or model-selection success claim is valid until a credentialed local QA pass proves the data plane with disposable credentials/accounts.
 
-Document that gateway-touched conversations may depend on the gateway's provider mappings, model aliases, translated reasoning/history items, and model catalog. A native Codex conversation may usually continue through a gateway because Codex sends visible context, but a gateway-touched conversation is not guaranteed to continue after removing the gateway.
+Required proof sequence:
 
-This is a core UX risk, not an implementation bug. Reset instructions must say that removing the proxy/config may restore native routing while leaving some conversations requiring the same gateway/catalog to resume reliably.
+1. Use a disposable `CODEX_HOME` or disposable `~/.codex/config.toml` path.
+2. Configure Codex against `http://127.0.0.1:8317/v1` with `wire_api = "responses"`.
+3. Use the data-plane proxy client key only for Codex request authentication.
+4. Run a non-streaming Responses request.
+5. Run a streaming Responses request.
+6. Exercise tool/function-call behavior, or record an explicit unsupported result.
+7. Confirm the selected model/provider alias reaches CLIProxyAPI.
+8. Restore the original Codex config from backup.
 
-## Risks and constraints
+Stop rule: if any data-plane item fails, do not implement or claim overlay routing. Revise architecture or add a narrow adapter plan based on the observed protocol gap.
 
-- **Provider terms/account risk:** `lidge-jun/opencodex` explicitly warns that some providers, notably Anthropic, may suspend or restrict accounts for third-party proxy routing. User guidance must tell users to review provider terms before connecting accounts or keys.
-- **Credential handling:** Proxy dashboards/configs store provider credentials outside this repo. Do not create repo-local credential files or example secrets.
-- **Protocol mismatch:** Many upstreams expose Chat Completions, not Responses. Tool calls, streaming, images, and reasoning metadata depend on proxy translation quality.
-- **Model catalog drift:** Codex Desktop model picker behavior may change. Prefer external proxy-managed injection and keep this repo's support documented as best-effort.
-- **Loopback exposure:** A local proxy can access prompts, files, tool calls, images, and browser/computer-use data. Keep examples on loopback and treat LAN mode as advanced/high risk.
-- **Service/autostart risk:** Proxy service/shim installation mutates user shell/runtime state. It may be appropriate for upstream proxy docs, but not for this repo's first-pass safe path.
-- **Linux parity:** AITabby and RyensX focus on macOS/Windows or mark Linux untested. Do not import their desktop/remote-control features into the Linux wrapper without dedicated Linux QA.
-- **Remote-control confusion:** RyensX/OpenCodex solves browser/LAN operation, not model selection. Keep it out of first-pass model-provider instructions.
+## Privileged management bridge/BFF
+
+The bridge/BFF is the only component allowed to hold the CLIProxyAPI management key. Renderer code receives typed, redacted DTOs only.
+
+Allowed renderer-facing operations:
+
+- `getStatus`
+- `listRedactedProviders`
+- `listRedactedModels`
+- `syncCodexProvider`
+- `restoreCodexProvider`
+- `toggleProviderDisabled`
+- `resetQuotaByAuthIndex`
+- `fetchRedactedUsageSummary`
+
+Explicitly forbidden renderer-facing behavior:
+
+- raw passthrough to `/config.yaml`, logs, auth files, or arbitrary management endpoints;
+- exposure of management key, data-plane proxy client key, upstream provider secrets, Codex OAuth/auth state, raw prompts, request payloads, or full provider config;
+- persistence of secrets in DOM, localStorage, screenshots, logs, IPC payloads, or evidence artifacts;
+- repeated unauthenticated management retries without backoff, because CLIProxyAPI may temporarily ban after repeated auth failures.
+
+Bridge responses should redact token-like fields by default and expose only status, labels, model IDs/aliases, enabled/disabled flags, health/quota summaries, and restore availability.
+
+## Wrapper-owned bubble first path
+
+The safe first UI path is a wrapper-owned companion bubble/overlay, not a direct patch inside the generated Codex app bundle.
+
+Required states:
+
+- hidden
+- opening
+- probing proxy
+- connected
+- unauthorized
+- disconnected
+- degraded
+- sync pending
+- rollback available
+- recovery
+
+Minimum visible features:
+
+- redacted provider/account/model status;
+- active model/provider selection;
+- quota/health summary;
+- sync Codex config;
+- restore native Codex config;
+- safe quota reset with explicit confirmation.
+
+The external CLIProxyAPI dashboard may remain a recovery/admin fallback only. It is not the product UX and should not be required for the normal bubble path.
+
+## Direct overlay gating
+
+A direct in-Codex overlay remains a later gated target. It requires:
+
+1. successful data-plane proof;
+2. implemented bridge/BFF redaction boundary;
+3. wrapper-owned bubble fallback;
+4. architect approval of a non-proprietary seam.
+
+Stop immediately if the only feasible path is proprietary generated bundle patching, private asset rewriting, or renderer secret exposure. Reuse the same bridge/BFF and redacted DTO contract if a direct seam is later approved.
+
+## Config sync and rollback
+
+Any config-writing path must be reversible:
+
+1. create a timestamped backup of the previous Codex config;
+2. write through a temporary file and atomic rename where the filesystem supports it;
+3. read back and validate the expected provider block;
+4. expose restore availability in the bubble;
+5. restore the previous config on user request;
+6. hide/disable the bubble without deleting CLIProxyAPI credentials.
+
+Do not delete CLIProxyAPI credentials, upstream provider credentials, or Codex auth files unless the user explicitly requests that action outside the normal rollback path.
+
+## Manual QA checklist
+
+Credential-free checks:
+
+- helper syntax and dry-run output generate CLIProxyAPI defaults without live credentials;
+- static docs mention CLIProxyAPI `8317`, bridge/BFF management key ownership, data-plane proxy client key distinction, wrapper-owned bubble first path, rollback, and OpenCodex `10100` supersession;
+- evidence contains no secret-like sample values beyond placeholder names.
+
+Credentialed local CLIProxyAPI checks:
+
+- management unauthenticated probe returns unauthorized and triggers backoff, not retry spam;
+- bridge authenticated status call returns only redacted provider/model/account DTOs;
+- non-streaming data-plane request succeeds through `127.0.0.1:8317/v1`;
+- streaming data-plane request succeeds or records the exact unsupported behavior;
+- tool/function-call behavior succeeds or is explicitly documented as unsupported;
+- selected model/provider alias reaches CLIProxyAPI;
+- Codex config backup/readback/restore works against disposable config.
+
+UI checks after bridge and wrapper bubble exist:
+
+- bubble opens from the wrapper-owned surface without requiring a separate user-facing dashboard address;
+- connected, unauthorized, disconnected, degraded, rollback available, and recovery states render correctly;
+- renderer globals, DOM, localStorage, logs, screenshots, IPC captures, and evidence contain no management key, proxy client key, upstream provider secrets, Codex OAuth/auth state, raw prompts, or request payloads;
+- direct overlay code path is disabled unless the direct-overlay gate is explicitly satisfied.
+
+## Rollback and stop rules
+
+Rollback:
+
+- restore the timestamped Codex config backup;
+- remove or disable the CLIProxyAPI provider block;
+- hide/disable the wrapper-owned bubble;
+- leave CLIProxyAPI credentials untouched unless separately requested.
+
+Stop rules:
+
+- stop UI work if data-plane proof fails;
+- stop bridge work if management redaction cannot be enforced;
+- stop direct overlay exploration if it requires generated/proprietary bundle patching;
+- stop live QA if a secret appears in renderer/evidence/log output;
+- stop credentialed testing if disposable credentials/accounts are unavailable.
 
 ## Follow-up constraints
 
-1. Lane A docs/helpers should name the chosen proxy pattern as optional and external, not bundled.
-2. Lane A should include a dry-run config snippet and rollback notes, not service installation.
-3. Lane B should verify docs/helpers with commands that do not require credentials, generated app bundles, or proprietary artifacts.
-4. Future implementation that mutates `~/.codex/config.toml` should make a timestamped backup and support restore before it becomes a default recommendation.
-5. Future app model-picker validation should use a disposable `CODEX_HOME`/home directory and avoid personal Codex credentials.
-
-## Source inspection
-
-- `lidge-jun/opencodex` README, fetched 2026-06-30: universal provider proxy; `/v1/responses`; `localhost:10100`; model routing; Codex App picker; loopback auth and provider terms warning.
-- `AITabby/opencodex` README, fetched 2026-06-30: Codex Desktop gateway; `127.0.0.1:8765`; managed config; custom model catalog; continuity/reset model; dashboard; Vision Bridge; macOS/Windows focus.
-- `RyensX/OpenCodex` README, fetched 2026-06-30: browser/LAN middleware for remote operation of Codex Desktop; password-protected gateway; mobile optimization; Linux untested.
+1. Lane A docs/helpers should default to CLIProxyAPI loopback data-plane guidance, not OpenCodex/opencodex `10100`.
+2. Lane B static checks should verify the data-plane/management-key split and absence of live-routing claims.
+3. Future implementation should keep bridge/BFF operations typed and narrow; no raw management proxying.
+4. Wrapper-owned bubble remains the first UI path until a direct seam is proven and approved.
 
 ## Verdict
 
-WATCH. A local Responses API proxy plus Codex config/provider injection is the safest first-pass direction, but the repo should ship it as documented optional integration guidance rather than an invasive wrapper feature. The primary unresolved risks are provider-account policy, gateway-dependent conversation continuity, credential handling, and model catalog drift.
+WATCH. CLIProxyAPI is the approved backend and wrapper-owned bubble/BFF is the safe UI architecture, but live routing and UI success remain gated by data-plane proof, credential isolation, and manual QA. This report does not claim live CLIProxyAPI routing was performed.

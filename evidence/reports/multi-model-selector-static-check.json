@@ -1,81 +1,50 @@
 {
-  "generated_at": "2026-06-30T07:32:00Z",
-  "scope": "Lane B static verification for first-pass multi-model selector direction in worker-2 worktree",
+  "generated_at": "2026-06-30T09:37:00Z",
+  "scope": "Lane B static verification for CLIProxyAPI first-pass multi-model selector direction in worker-2 worktree",
   "credential_free": true,
   "native_install_or_service_flows_run": false,
   "generated_app_or_proprietary_artifacts_required": false,
   "files_checked": [
-    ".gitignore",
     "README.md",
-    "reports/final-validation.md",
-    "reports/multi-model-selector-verification.md"
+    "reports/multi-model-selection-first-pass.md",
+    "reports/multi-model-selector-verification.md",
+    "scripts/codex-multi-model-config.py",
+    "tests/test_codex_multi_model_config.py"
   ],
   "multi_model_terms_found_in_checked_docs": {
-    "opencodex": true,
-    "Responses API proxy": true,
+    "CLIProxyAPI": true,
+    "127.0.0.1:8317": true,
+    "bridge/BFF": true,
+    "bubble path": true,
+    "OpenCodex 10100 superseded": true,
     "model-provider": true,
     "multi-model": true
   },
-  "local_links": [
-    {
-      "source": "README.md",
-      "target": "reports/final-validation.md",
-      "resolved": "reports/final-validation.md",
-      "exists": true
-    },
-    {
-      "source": "README.md",
-      "target": "evidence/build/build-info.json",
-      "resolved": "evidence/build/build-info.json",
-      "exists": true
-    },
-    {
-      "source": "README.md",
-      "target": "evidence/gui/webview-smoke-result.txt",
-      "resolved": "evidence/gui/webview-smoke-result.txt",
-      "exists": true
-    }
-  ],
   "checks": [
     {
-      "name": "README warns unofficial/no redistribution",
+      "name": "Helper defaults to CLIProxyAPI data plane",
       "passed": true,
-      "detail": "README warning keeps proprietary redistribution boundary visible."
+      "detail": "Default provider/model/base_url/env_key are cliproxyapi, cliproxyapi/default, http://127.0.0.1:8317/v1, and CLIPROXYAPI_PROXY_CLIENT_KEY."
     },
     {
-      "name": "README documents denied native install/service paths",
+      "name": "Helper separates data-plane and management keys",
       "passed": true,
-      "detail": "Dangerous native/service/package flows remain listed under Do not run first."
+      "detail": "CLIPROXYAPI_MANAGEMENT_KEY is refused as a Codex data-plane env_key."
     },
     {
-      "name": "README keeps loopback-only webview proof",
+      "name": "Helper dry-run and append behavior covered",
       "passed": true,
-      "detail": "Existing launch proof still scopes webview to localhost."
+      "detail": "Unit tests verify dry-run target preservation, append write, and duplicate append refusal."
     },
     {
-      "name": "Final validation denies system/native flows",
+      "name": "Docs supersede OpenCodex 10100 guidance",
       "passed": true,
-      "detail": "Validation report records that native install/updater/service flows were not needed."
+      "detail": "README and first-pass report point to CLIProxyAPI 8317 plus bridge/BFF and bubble path."
     },
     {
-      "name": "Generated/proprietary artifacts ignored",
+      "name": "No live routing or credential claim",
       "passed": true,
-      "detail": ".gitignore excludes wrapper checkout, upstream DMG copies, and team state."
-    },
-    {
-      "name": "Current baseline has no live provider-routing claim",
-      "passed": true,
-      "detail": "Baseline README does not claim provider routing before delivery/architecture docs are integrated."
-    },
-    {
-      "name": "Verification report defines integration acceptance criteria",
-      "passed": true,
-      "detail": "Lane B report records credential-free checks required for integrated docs/helpers."
-    },
-    {
-      "name": "Local markdown/html evidence links resolve",
-      "passed": true,
-      "detail": "3 local links checked; missing=[]."
+      "detail": "Verification does not require live CLIProxyAPI credentials, generated app bundles, or proprietary artifacts."
     }
   ],
   "overall_pass": true

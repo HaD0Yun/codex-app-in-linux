@@ -1,0 +1,24 @@
+{
+  "check": "cliproxyapi-bubble-lane-c-static-check",
+  "date": "2026-06-30",
+  "result": "PASS",
+  "scope": "Lane C architecture/manual QA docs only; no live CLIProxyAPI routing claimed",
+  "commands": [
+    "PYTHONDONTWRITEBYTECODE=1 python3 - <<'PY' ...",
+    "PYTHONDONTWRITEBYTECODE=1 python3 -m py_compile scripts/codex-multi-model-config.py"
+  ],
+  "results": [
+    {
+      "file": "reports/multi-model-selector-architecture.md",
+      "required_terms_present": true,
+      "missing_terms": [],
+      "no_unqualified_live_routing_claim": true
+    },
+    {
+      "file": "reports/cliproxyapi-bubble-manual-qa.md",
+      "required_terms_present": true,
+      "missing_terms": [],
+      "no_unqualified_live_routing_claim": true
+    }
+  ]
+}

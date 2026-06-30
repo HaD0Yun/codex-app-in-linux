@@ -26,10 +26,10 @@ Tested on Ubuntu 24.04.4 LTS / GNOME Wayland / x64.
 
 ## Multi-model selection first pass
 
-This repo includes a non-invasive first-pass path for local multi-model selection: run an OpenCodex-style loopback proxy that exposes an OpenAI Responses-compatible `/v1` API, then point Codex config at that proxy with a custom `model_provider`.
+This repo includes a non-invasive first-pass path for local multi-model selection: the earlier OpenCodex `10100` guidance is superseded by a CLIProxyAPI data-plane proxy on `127.0.0.1:8317`, with privileged management kept behind the bridge/BFF and wrapper-owned bubble path. Codex config points at that loopback data plane with a custom `model_provider`.
 
 ```bash
-python3 scripts/codex-multi-model-config.py --model opencodex/default --print-env
+python3 scripts/codex-multi-model-config.py --model cliproxyapi/default --print-env
 ```
 
 See `reports/multi-model-selection-first-pass.md` for the full flow and safety constraints.
