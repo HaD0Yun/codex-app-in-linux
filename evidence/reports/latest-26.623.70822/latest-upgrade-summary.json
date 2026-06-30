@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-06-30T10:59:05Z",
+  "resolvedBlocker": "Current prod Codex.dmg exists and matches Codex App 26.623.70822, so the previous ZIP/arm64 appcast-only blocker is resolved by using the DMG endpoint expected by the wrapper.",
+  "upstreamDmg": {
+    "fileName": "Codex.dmg",
+    "sizeBytes": 529745413,
+    "sha256": "75e670b8948d262ac8ea3ad8f61149e3d0240a04e6ca0b6bc249ac54fd83d43e",
+    "appVersion": "26.623.70822"
+  },
+  "dmgUrl": "https://persistent.oaistatic.com/codex-app-prod/Codex.dmg",
+  "dmgHeaders": {
+    "Date": "Tue, 30 Jun 2026 10:52:13 GMT",
+    "Content-Type": "application/x-apple-diskimage",
+    "Content-Length": "529745413",
+    "Connection": "close",
+    "Last-Modified": "Mon, 29 Jun 2026 17:33:14 GMT",
+    "etag": "0x8DED6048002F71C",
+    "Server": "cloudflare",
+    "x-ms-request-id": "96a980bb-201e-00c1-75f3-070dbe000000",
+    "x-ms-request-priority": "3",
+    "x-ms-version": "2009-09-19",
+    "x-ms-lease-status": "unlocked",
+    "x-ms-blob-type": "BlockBlob",
+    "Access-Control-Expose-Headers": "content-length",
+    "Access-Control-Allow-Origin": "*",
+    "Accept-Ranges": "bytes",
+    "Nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.01,\"max_age\":604800}",
+    "Age": "2037",
+    "cf-cache-status": "HIT",
+    "set-cookie": "_cfuvid=pbrX00OuIplxTzOasXbQMtqZtczvaZecJVA3Y5tSYD4-1782816733.9620764-1.0.1.1-DgYPplsacqYZWtIZp0N_7qsMZ_INSLijb1ZdVlPBeTM; HttpOnly; SameSite=None; Secure; Path=/; Domain=oaistatic.com",
+    "Strict-Transport-Security": "max-age=31536000; includeSubDomains; preload",
+    "X-Content-Type-Options": "nosniff",
+    "Report-To": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=wUsbJULGR6ZLTinsl60rdiutK1NDuJTCptKxDfZFs7oTuh2wrBzQPo8W0j1xtEPeLFkB6qYANDJPjnha7IQjQRrnGIF03Gg%2BpCid7fDi5wGs4%2Bynh%2FfZAZatUklszpG8eg8tk%2FPwOc9H1KjWK9dpfOCxKIc%3D\"}]}",
+    "CF-RAY": "a13c9ecb49e6a7d8-ICN",
+    "alt-svc": "h3=\":443\"; ma=86400"
+  },
+  "appcastZip": {
+    "url": "https://persistent.oaistatic.com/codex-app-prod/Codex-darwin-arm64-26.623.70822.zip",
+    "sha256": "4a29862faa4e4ceb177f7cb9fcbf93b65f42a3ddfda69ed9c1e8dfe2a0edb58b",
+    "sizeBytes": 534793471,
+    "note": "Sparkle appcast latest ZIP remains recorded as appcast evidence but is not the selected Linux wrapper input."
+  },
+  "electronVersion": "42.1.0",
+  "wrapperSource": {
+    "commit": "9772c4ae2ba4ec604c8546e9b70ea5d95fd1a5df",
+    "shortCommit": "9772c4ae2ba4",
+    "version": "0.8.6",
+    "branch": "main",
+    "remote": "https://github.com/ilysenko/codex-desktop-linux.git",
+    "commitUrl": "https://github.com/ilysenko/codex-desktop-linux/commit/9772c4ae2ba4ec604c8546e9b70ea5d95fd1a5df",
+    "describe": "9772c4a",
+    "dirty": false,
+    "provenance": "git"
+  },
+  "patchSummary": {
+    "required-upstream:applied": 13,
+    "required-upstream:already-applied": 4,
+    "optional:applied": 37,
+    "optional:already-applied": 12,
+    "opt-in:applied": 2,
+    "opt-in:already-applied": 1,
+    "opt-in:skipped-optional": 1,
+    "optional:skipped-target": 1
+  },
+  "patchWarnings": [
+    {
+      "name": "linux-computer-use-install-flow",
+      "status": "skipped-optional",
+      "reason": "WARN: Could not find Computer Use install flow bundle in /tmp/tmp.UfS7VG4xad/app-extracted/webview/assets \u2014 skipping Linux Computer Use install flow patch",
+      "warnings": [
+        "WARN: Could not find Computer Use install flow bundle in /tmp/tmp.UfS7VG4xad/app-extracted/webview/assets \u2014 skipping Linux Computer Use install flow patch"
+      ]
+    },
+    {
+      "name": "linux-workspace-root-open-targets",
+      "status": "skipped-target",
+      "reason": "No Linux editor or terminal open targets are enabled",
+      "warnings": null
+    }
+  ],
+  "verification": {
+    "buildApp": "passed: make build-app DMG=/home/yun/t2/repo/evidence/downloads/Codex.dmg",
+    "webviewSmoke": "passed: evidence/gui/latest-26.623.70822-webview-smoke.json",
+    "packageBuild": "not run; prior proof path focuses wrapper build and launch smoke, native package install remains recommended before native rollout"
+  }
+}

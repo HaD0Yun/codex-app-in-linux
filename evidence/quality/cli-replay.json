@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "kind": "cli-replay",
+  "replaySafe": true,
+  "command": [
+    "node",
+    "-e",
+    "console.log(\"ultragoal-cli-ok\")"
+  ],
+  "recordedStdout": "ultragoal-cli-ok\n"
+}

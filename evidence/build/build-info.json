@@ -1,26 +1,26 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-06-20T14:30:25.004Z",
+  "generatedAt": "2026-06-30T10:55:59.877Z",
   "appIdentity": {
     "id": "codex-desktop",
     "displayName": "Codex Desktop"
   },
   "upstreamDmg": {
     "fileName": "Codex.dmg",
-    "sizeBytes": 520180841,
-    "sha256": "7de4cce5ec6e39478b9f0630e2b9257aadd1d02dd6a0fdc00c2ecdf0f536022d",
-    "appVersion": "26.616.41845"
+    "sizeBytes": 529745413,
+    "sha256": "75e670b8948d262ac8ea3ad8f61149e3d0240a04e6ca0b6bc249ac54fd83d43e",
+    "appVersion": "26.623.70822"
   },
   "electronVersion": "42.1.0",
   "source": {
-    "commit": "9125911c8347c35177dfc76e2f5bce2b8b2e41d4",
-    "shortCommit": "9125911c8347",
-    "version": "0.8.2",
+    "commit": "9772c4ae2ba4ec604c8546e9b70ea5d95fd1a5df",
+    "shortCommit": "9772c4ae2ba4",
+    "version": "0.8.6",
     "branch": "main",
     "remote": "https://github.com/ilysenko/codex-desktop-linux.git",
-    "commitUrl": "https://github.com/ilysenko/codex-desktop-linux/commit/9125911c8347c35177dfc76e2f5bce2b8b2e41d4",
-    "describe": "9125911-dirty",
-    "dirty": true,
+    "commitUrl": "https://github.com/ilysenko/codex-desktop-linux/commit/9772c4ae2ba4ec604c8546e9b70ea5d95fd1a5df",
+    "describe": "9772c4a",
+    "dirty": false,
     "provenance": "git"
   },
   "linuxTarget": {
@@ -32,7 +32,7 @@
       ],
       "versionId": "24.04",
       "versionMajor": 24,
-      "prettyName": "Ubuntu 24.04.4 LTS"
+      "prettyName": "Ubuntu 24.04 LTS"
     },
     "packageFormat": "deb",
     "packageManager": "apt",
@@ -44,8 +44,8 @@
         "gnome"
       ]
     },
-    "sessionType": "wayland",
-    "wayland": true,
+    "sessionType": "x11",
+    "wayland": false,
     "x11": true
   },
   "packageProfile": {

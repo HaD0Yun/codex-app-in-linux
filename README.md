@@ -9,9 +9,9 @@
 </p>
 
 <p align="center">
-  <a href="reports/final-validation.md">Validation report</a> ·
+  <a href="reports/latest-26.623.70822-validation.md">Latest validation report</a> ·
   <a href="evidence/build/build-info.json">Build info</a> ·
-  <a href="evidence/gui/webview-smoke-result.txt">Smoke test</a>
+  <a href="evidence/gui/latest-26.623.70822-webview-smoke.json">Latest smoke test</a>
 </p>
 
 > [!WARNING]
@@ -21,31 +21,31 @@
 
 OpenAI ships the Codex desktop app for macOS and Windows. Linux is officially supported through Codex CLI, not a native desktop app. This repo documents a working Linux proof using an unofficial wrapper build that converts the upstream macOS `Codex.dmg` into a Linux Electron app.
 
-Tested on Ubuntu 24.04.4 LTS / GNOME Wayland / x64.
+Latest refresh tested on Ubuntu 24.04 LTS / GNOME session / x64. Earlier visual proof was captured on Ubuntu 24.04.4 LTS / GNOME Wayland / x64.
 
 ## Result
 
 | Check | Result |
 | --- | --- |
 | Local wrapper build | Passed |
-| Generated Electron app launch | Passed; startup failure modal absent after `linux-owl-feature-binding-noop` |
+| Generated Electron app launch | Passed with current Linux patch set; Owl binding fallback recorded in patch report |
 | Webview server | Passed on `127.0.0.1:5175` |
 | Electron process tree | Passed |
 | Codex CLI app-server handshake | Passed |
-| Login/account readiness | Passed for existing signed-in user state |
+| Login/account readiness | Not reverified in latest refresh; sign-in QA still recommended |
 | Native install / updater / service | Not used |
 | Project/thread/shell approval manual QA | Still recommended |
 
-Smoke result (latest, 2026-06-20):
+Smoke result (latest refresh, 2026-06-30):
 
 ```text
 http://127.0.0.1:5175/ -> HTTP 200
-bootstrapFailed=false
-owlBindingError=false
+launcher_phase=webview_ready=true
+Codex CLI initialized=true
 app routes mounted=true
-ready message handled=true
-account/read succeeded
+Handled 'ready' message=true
 browser_use_iab_backend_startup_ready=true
+release=26.623.70822
 ```
 
 ## Reproduce safely
@@ -65,11 +65,11 @@ First proof path avoids system-wide install.
 ```bash
 git clone <wrapper-source-url> upstream/codex-linux-wrapper
 cd upstream/codex-linux-wrapper
-git checkout 9125911c8347c35177dfc76e2f5bce2b8b2e41d4
+git checkout 9772c4ae2ba4ec604c8546e9b70ea5d95fd1a5df
 
 # Download Codex.dmg separately, then verify:
 sha256sum /path/to/Codex.dmg
-# latest expected: 7de4cce5ec6e39478b9f0630e2b9257aadd1d02dd6a0fdc00c2ecdf0f536022d
+# latest expected: 75e670b8948d262ac8ea3ad8f61149e3d0240a04e6ca0b6bc249ac54fd83d43e
 
 make build-app DMG=/absolute/path/to/Codex.dmg
 ./codex-app/start.sh
@@ -89,24 +89,24 @@ PY
 
 | Field | Value |
 | --- | --- |
-| Wrapper commit | `9125911c8347c35177dfc76e2f5bce2b8b2e41d4` + local latest-DMG compatibility patches |
-| Wrapper version | `0.8.2` |
-| Codex app version | `26.616.41845` |
+| Wrapper commit | `9772c4ae2ba4ec604c8546e9b70ea5d95fd1a5df` |
+| Wrapper version | `0.8.6` |
+| Codex app version | `26.623.70822` |
 | Electron version | `42.1.0` |
-| DMG size | `520180841` bytes |
-| DMG SHA256 | `7de4cce5ec6e39478b9f0630e2b9257aadd1d02dd6a0fdc00c2ecdf0f536022d` |
+| DMG size | `529745413` bytes |
+| DMG SHA256 | `75e670b8948d262ac8ea3ad8f61149e3d0240a04e6ca0b6bc249ac54fd83d43e` |
 
 ## Evidence
 
 ```text
-reports/final-validation.md              Main validation report
+reports/latest-26.623.70822-validation.md Latest refresh validation report
+reports/final-validation.md              Original validation report
 reports/worker-*-wrapper-audit.md        Audit notes
 evidence/build/build-info.json           Generated app metadata
 evidence/build/patch-report.json         Wrapper patch report
-evidence/reports/wrapper-latest-compat.patch Local wrapper compatibility diff
-evidence/reports/latest-upgrade-summary.json Latest upgrade summary
-evidence/gui/process-evidence.txt        Electron/webview process evidence
-evidence/gui/webview-smoke-result.txt    HTTP 200 webview smoke result
+evidence/reports/latest-26.623.70822/latest-upgrade-summary.json Latest refresh summary
+evidence/gui/latest-26.623.70822-webview-smoke.json Latest HTTP/log smoke result
+evidence/gui/process-evidence.txt        Original Electron/webview process evidence
 assets/codex-app-linux-running.png       Screenshot
 ```
 
@@ -143,9 +143,9 @@ cd /path/to/codex-linux-wrapper
 
 ## Remaining QA
 
-Completed: build, launch smoke, loopback webview, Electron process tree, Codex app-server process evidence.
+Completed for latest refresh: wrapper build, loopback webview smoke, Codex CLI app-server handshake evidence, renderer route mount evidence, Browser Use IAB backend readiness evidence.
 
-Still recommended: sign in, open a disposable project, create a thread, test shell/file approval UI.
+Still recommended: native package install/update-manager QA, sign in, open a disposable project, create a thread, test shell/file approval UI.
 
 ## Security note
 
