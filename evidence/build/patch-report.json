@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-06-20T14:29:58.793Z",
-  "target": "/tmp/tmp.NLKpDkkwKe/app-extracted/.vite/build/main-CXkxd7xB.js",
-  "mainBundle": "main-CXkxd7xB.js",
+  "generatedAt": "2026-06-30T10:54:44.819Z",
+  "target": "/tmp/tmp.UfS7VG4xad/app-extracted/.vite/build/main-Cfnoc8EH.js",
+  "mainBundle": "main-Cfnoc8EH.js",
   "iconAsset": "app-D0g8sCle.png",
   "desktopName": "codex-desktop.desktop",
   "linuxTarget": {
@@ -13,7 +13,7 @@
       ],
       "versionId": "24.04",
       "versionMajor": 24,
-      "prettyName": "Ubuntu 24.04.4 LTS"
+      "prettyName": "Ubuntu 24.04 LTS"
     },
     "packageFormat": "deb",
     "packageManager": "apt",
@@ -25,8 +25,8 @@
         "gnome"
       ]
     },
-    "sessionType": "wayland",
-    "wayland": true,
+    "sessionType": "x11",
+    "wayland": false,
     "x11": true
   },
   "enabledFeatures": [],
@@ -190,6 +190,14 @@
       "sourceKind": "core"
     },
     {
+      "name": "linux-terminal-user-path",
+      "status": "applied",
+      "phase": "main-bundle",
+      "targetSummary": "all-linux",
+      "ciPolicy": "optional",
+      "sourceKind": "core"
+    },
+    {
       "name": "linux-tray",
       "status": "applied",
       "phase": "main-bundle",
@@ -215,7 +223,7 @@
     },
     {
       "name": "linux-computer-use-ui-feature",
-      "status": "skipped-disabled",
+      "status": "applied",
       "phase": "main-bundle",
       "targetSummary": "all-linux",
       "ciPolicy": "opt-in",
@@ -223,16 +231,11 @@
     },
     {
       "name": "linux-computer-use-plugin-gate",
-      "status": "skipped-optional",
-      "reason": "Patch 'linux-computer-use-plugin-gate' threw: Required Linux Computer Use plugin gate patch failed: could not enable bundled Computer Use on Linux",
+      "status": "applied",
       "phase": "main-bundle",
       "targetSummary": "all-linux",
       "ciPolicy": "optional",
-      "sourceKind": "core",
-      "error": true,
-      "warnings": [
-        "WARN: Patch 'linux-computer-use-plugin-gate' threw: Required Linux Computer Use plugin gate patch failed: could not enable bundled Computer Use on Linux"
-      ]
+      "sourceKind": "core"
     },
     {
       "name": "linux-chrome-plugin-auto-install",
@@ -243,16 +246,12 @@
       "sourceKind": "core"
     },
     {
-      "name": "browser-use-node-repl-approval",
-      "status": "skipped-optional",
-      "reason": "WARN: Could not find Browser Use node_repl config insertion point — skipping node_repl approval patch",
+      "name": "linux-computer-use-native-desktop-apps",
+      "status": "applied",
       "phase": "main-bundle",
       "targetSummary": "all-linux",
-      "ciPolicy": "optional",
-      "sourceKind": "core",
-      "warnings": [
-        "WARN: Could not find Browser Use node_repl config insertion point — skipping node_repl approval patch"
-      ]
+      "ciPolicy": "opt-in",
+      "sourceKind": "core"
     },
     {
       "name": "linux-browser-use-route-liveness",
@@ -304,15 +303,11 @@
     },
     {
       "name": "linux-settings-persistence",
-      "status": "skipped-optional",
-      "reason": "WARN: Could not find Linux settings state file marker — skipping settings persistence patch",
+      "status": "applied",
       "phase": "main-bundle",
       "targetSummary": "all-linux",
       "ciPolicy": "optional",
-      "sourceKind": "core",
-      "warnings": [
-        "WARN: Could not find Linux settings state file marker — skipping settings persistence patch"
-      ]
+      "sourceKind": "core"
     },
     {
       "name": "linux-launch-actions",
@@ -354,6 +349,14 @@
       "sourceKind": "core"
     },
     {
+      "name": "linux-worker-file-manager",
+      "status": "applied",
+      "phase": "extracted-app",
+      "targetSummary": "all-linux",
+      "ciPolicy": "optional",
+      "sourceKind": "core"
+    },
+    {
       "name": "linux-multi-instance-bootstrap-lock",
       "status": "applied",
       "phase": "extracted-app",
@@ -362,24 +365,28 @@
       "sourceKind": "core"
     },
     {
-      "name": "linux-owl-feature-binding-noop",
+      "name": "browser-use-node-repl-approval",
       "status": "applied",
       "phase": "extracted-app",
       "targetSummary": "all-linux",
-      "ciPolicy": "required-upstream",
+      "ciPolicy": "optional",
       "sourceKind": "core"
     },
     {
       "name": "linux-chrome-native-host-runtime",
-      "status": "skipped-optional",
-      "reason": "WARN: Could not identify Chrome native host runtime resolver shape — skipping Linux runtime path patch",
+      "status": "applied",
       "phase": "extracted-app",
       "targetSummary": "all-linux",
       "ciPolicy": "optional",
-      "sourceKind": "core",
-      "warnings": [
-        "WARN: Could not identify Chrome native host runtime resolver shape — skipping Linux runtime path patch"
-      ]
+      "sourceKind": "core"
+    },
+    {
+      "name": "linux-owl-feature-binding-fallback",
+      "status": "already-applied",
+      "phase": "extracted-app",
+      "targetSummary": "all-linux",
+      "ciPolicy": "required-upstream",
+      "sourceKind": "core"
     },
     {
       "name": "automation-schedule-multi-time-rrule",
@@ -407,15 +414,11 @@
     },
     {
       "name": "browser-annotation-screenshot",
-      "status": "applied-with-warnings",
-      "reason": "WARN: Could not find browser annotation screenshot markers — skipping screenshot marker patch",
+      "status": "applied",
       "phase": "extracted-app",
       "targetSummary": "all-linux",
       "ciPolicy": "optional",
-      "sourceKind": "core",
-      "warnings": [
-        "WARN: Could not find browser annotation screenshot markers — skipping screenshot marker patch"
-      ]
+      "sourceKind": "core"
     },
     {
       "name": "linux-app-sunset-gate",
@@ -435,7 +438,7 @@
     },
     {
       "name": "opaque-window-default-webview-index",
-      "status": "applied",
+      "status": "already-applied",
       "phase": "webview-asset",
       "targetSummary": "all-linux",
       "ciPolicy": "optional",
@@ -443,7 +446,7 @@
     },
     {
       "name": "opaque-window-default-resolved-theme",
-      "status": "applied",
+      "status": "already-applied",
       "phase": "webview-asset",
       "targetSummary": "all-linux",
       "ciPolicy": "optional",
@@ -467,7 +470,7 @@
     },
     {
       "name": "linux-window-controls-safe-area",
-      "status": "applied",
+      "status": "already-applied",
       "phase": "webview-asset",
       "targetSummary": "all-linux",
       "ciPolicy": "optional",
@@ -475,7 +478,7 @@
     },
     {
       "name": "linux-app-server-backfill-wait",
-      "status": "applied",
+      "status": "already-applied",
       "phase": "webview-asset",
       "targetSummary": "all-linux",
       "ciPolicy": "optional",
@@ -498,6 +501,14 @@
       "sourceKind": "core"
     },
     {
+      "name": "linux-skills-list-dedupe",
+      "status": "already-applied",
+      "phase": "webview-asset",
+      "targetSummary": "all-linux",
+      "ciPolicy": "optional",
+      "sourceKind": "core"
+    },
+    {
       "name": "linux-config-write-version-conflict",
       "status": "applied",
       "phase": "webview-asset",
@@ -507,7 +518,7 @@
     },
     {
       "name": "linux-safe-monospace-font-stack",
-      "status": "applied",
+      "status": "already-applied",
       "phase": "webview-asset",
       "targetSummary": "all-linux",
       "ciPolicy": "optional",
@@ -515,7 +526,7 @@
     },
     {
       "name": "composer-persistent-rate-limit-footer",
-      "status": "applied",
+      "status": "already-applied",
       "phase": "webview-asset",
       "targetSummary": "all-linux",
       "ciPolicy": "optional",
@@ -535,14 +546,6 @@
       "phase": "webview-asset",
       "targetSummary": "all-linux",
       "ciPolicy": "optional",
-      "sourceKind": "core"
-    },
-    {
-      "name": "linux-dynamic-tool-input-schema",
-      "status": "applied",
-      "phase": "webview-asset",
-      "targetSummary": "all-linux",
-      "ciPolicy": "required-upstream",
       "sourceKind": "core"
     },
     {
@@ -571,7 +574,7 @@
     },
     {
       "name": "linux-browser-use-non-local-navigation",
-      "status": "applied",
+      "status": "already-applied",
       "phase": "webview-asset",
       "targetSummary": "all-linux",
       "ciPolicy": "optional",
@@ -587,19 +590,15 @@
     },
     {
       "name": "linux-chat-search-hydration",
-      "status": "skipped-optional",
-      "reason": "WARN: Could not find chat search result selection cache — skipping Linux chat search hydration patch",
+      "status": "already-applied",
       "phase": "webview-asset",
       "targetSummary": "all-linux",
       "ciPolicy": "optional",
-      "sourceKind": "core",
-      "warnings": [
-        "WARN: Could not find chat search result selection cache — skipping Linux chat search hydration patch"
-      ]
+      "sourceKind": "core"
     },
     {
       "name": "linux-computer-use-ui-availability",
-      "status": "skipped-disabled",
+      "status": "already-applied",
       "phase": "webview-asset",
       "targetSummary": "all-linux",
       "ciPolicy": "opt-in",
@@ -607,11 +606,15 @@
     },
     {
       "name": "linux-computer-use-install-flow",
-      "status": "skipped-disabled",
+      "status": "skipped-optional",
+      "reason": "WARN: Could not find Computer Use install flow bundle in /tmp/tmp.UfS7VG4xad/app-extracted/webview/assets — skipping Linux Computer Use install flow patch",
       "phase": "webview-asset",
       "targetSummary": "all-linux",
       "ciPolicy": "opt-in",
-      "sourceKind": "core"
+      "sourceKind": "core",
+      "warnings": [
+        "WARN: Could not find Computer Use install flow bundle in /tmp/tmp.UfS7VG4xad/app-extracted/webview/assets — skipping Linux Computer Use install flow patch"
+      ]
     },
     {
       "name": "keybinds-settings",
@@ -628,6 +631,15 @@
       "phase": "extracted-app",
       "targetSummary": "all-linux",
       "ciPolicy": "required-upstream",
+      "sourceKind": "core"
+    },
+    {
+      "name": "linux-workspace-root-open-targets",
+      "status": "skipped-target",
+      "reason": "No Linux editor or terminal open targets are enabled",
+      "phase": "extracted-app",
+      "targetSummary": "all-linux",
+      "ciPolicy": "optional",
       "sourceKind": "core"
     }
   ]

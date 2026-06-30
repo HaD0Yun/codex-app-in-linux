@@ -1,0 +1,28 @@
+{
+  "generatedAt": "2026-06-30T10:57:45Z",
+  "checks": [
+    {
+      "url": "http://127.0.0.1:5175/",
+      "status": 200,
+      "contains_root": false,
+      "prefix": "<!doctype html>\n<html lang=\"en\" data-build=\"<!-- PROD_BUILD_TAG_HERE -->\">\n  <head>\n    <!-- PROD_BASE_TAG_HERE -->\n    "
+    },
+    {
+      "url": "http://127.0.0.1:5175/index.html",
+      "status": 200,
+      "contains_root": false,
+      "prefix": "<!doctype html>\n<html lang=\"en\" data-build=\"<!-- PROD_BUILD_TAG_HERE -->\">\n  <head>\n    <!-- PROD_BASE_TAG_HERE -->\n    "
+    }
+  ],
+  "logNeedles": {
+    "launcher_phase=webview_ready": true,
+    "initialize_handshake_result": true,
+    "outcome=success": true,
+    "Codex CLI initialized": true,
+    "app routes mounted": true,
+    "browser_use_iab_backend_startup_ready": true,
+    "release=26.623.70822": true,
+    "Handled 'ready' message": true
+  },
+  "logPath": "/home/yun/.cache/codex-desktop/launcher.log"
+}

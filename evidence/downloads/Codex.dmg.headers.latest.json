@@ -1,0 +1,30 @@
+{
+  "url": "https://persistent.oaistatic.com/codex-app-prod/Codex.dmg",
+  "headers": {
+    "Date": "Tue, 30 Jun 2026 10:52:13 GMT",
+    "Content-Type": "application/x-apple-diskimage",
+    "Content-Length": "529745413",
+    "Connection": "close",
+    "Last-Modified": "Mon, 29 Jun 2026 17:33:14 GMT",
+    "etag": "0x8DED6048002F71C",
+    "Server": "cloudflare",
+    "x-ms-request-id": "96a980bb-201e-00c1-75f3-070dbe000000",
+    "x-ms-request-priority": "3",
+    "x-ms-version": "2009-09-19",
+    "x-ms-lease-status": "unlocked",
+    "x-ms-blob-type": "BlockBlob",
+    "Access-Control-Expose-Headers": "content-length",
+    "Access-Control-Allow-Origin": "*",
+    "Accept-Ranges": "bytes",
+    "Nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.01,\"max_age\":604800}",
+    "Age": "2037",
+    "cf-cache-status": "HIT",
+    "set-cookie": "_cfuvid=pbrX00OuIplxTzOasXbQMtqZtczvaZecJVA3Y5tSYD4-1782816733.9620764-1.0.1.1-DgYPplsacqYZWtIZp0N_7qsMZ_INSLijb1ZdVlPBeTM; HttpOnly; SameSite=None; Secure; Path=/; Domain=oaistatic.com",
+    "Strict-Transport-Security": "max-age=31536000; includeSubDomains; preload",
+    "X-Content-Type-Options": "nosniff",
+    "Report-To": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=wUsbJULGR6ZLTinsl60rdiutK1NDuJTCptKxDfZFs7oTuh2wrBzQPo8W0j1xtEPeLFkB6qYANDJPjnha7IQjQRrnGIF03Gg%2BpCid7fDi5wGs4%2Bynh%2FfZAZatUklszpG8eg8tk%2FPwOc9H1KjWK9dpfOCxKIc%3D\"}]}",
+    "CF-RAY": "a13c9ecb49e6a7d8-ICN",
+    "alt-svc": "h3=\":443\"; ma=86400"
+  },
+  "downloaded_bytes": 529745413
+}

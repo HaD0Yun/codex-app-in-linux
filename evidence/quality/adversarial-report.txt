@@ -1,0 +1,1 @@
+Adversarial checks passed: README avoids official Linux support claim; latest appcast ZIP is recorded separately from selected DMG; native install/update-manager QA remains recommended rather than claimed complete.

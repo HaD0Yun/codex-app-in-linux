@@ -1,0 +1,6 @@
+proof-doc-consistency: passed
+git diff --check: passed
+make build-app DMG=/home/yun/t2/repo/evidence/downloads/Codex.dmg: passed
+webview smoke: passed; see evidence/gui/latest-26.623.70822-webview-smoke.json
+review-blocker-fixes: passed
+README stale owl patch reference removed; login/account claim narrowed; exact ready-message needle added to smoke JSON.
