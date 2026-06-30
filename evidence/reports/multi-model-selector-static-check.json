@@ -1,0 +1,82 @@
+{
+  "generated_at": "2026-06-30T07:32:00Z",
+  "scope": "Lane B static verification for first-pass multi-model selector direction in worker-2 worktree",
+  "credential_free": true,
+  "native_install_or_service_flows_run": false,
+  "generated_app_or_proprietary_artifacts_required": false,
+  "files_checked": [
+    ".gitignore",
+    "README.md",
+    "reports/final-validation.md",
+    "reports/multi-model-selector-verification.md"
+  ],
+  "multi_model_terms_found_in_checked_docs": {
+    "opencodex": true,
+    "Responses API proxy": true,
+    "model-provider": true,
+    "multi-model": true
+  },
+  "local_links": [
+    {
+      "source": "README.md",
+      "target": "reports/final-validation.md",
+      "resolved": "reports/final-validation.md",
+      "exists": true
+    },
+    {
+      "source": "README.md",
+      "target": "evidence/build/build-info.json",
+      "resolved": "evidence/build/build-info.json",
+      "exists": true
+    },
+    {
+      "source": "README.md",
+      "target": "evidence/gui/webview-smoke-result.txt",
+      "resolved": "evidence/gui/webview-smoke-result.txt",
+      "exists": true
+    }
+  ],
+  "checks": [
+    {
+      "name": "README warns unofficial/no redistribution",
+      "passed": true,
+      "detail": "README warning keeps proprietary redistribution boundary visible."
+    },
+    {
+      "name": "README documents denied native install/service paths",
+      "passed": true,
+      "detail": "Dangerous native/service/package flows remain listed under Do not run first."
+    },
+    {
+      "name": "README keeps loopback-only webview proof",
+      "passed": true,
+      "detail": "Existing launch proof still scopes webview to localhost."
+    },
+    {
+      "name": "Final validation denies system/native flows",
+      "passed": true,
+      "detail": "Validation report records that native install/updater/service flows were not needed."
+    },
+    {
+      "name": "Generated/proprietary artifacts ignored",
+      "passed": true,
+      "detail": ".gitignore excludes wrapper checkout, upstream DMG copies, and team state."
+    },
+    {
+      "name": "Current baseline has no live provider-routing claim",
+      "passed": true,
+      "detail": "Baseline README does not claim provider routing before delivery/architecture docs are integrated."
+    },
+    {
+      "name": "Verification report defines integration acceptance criteria",
+      "passed": true,
+      "detail": "Lane B report records credential-free checks required for integrated docs/helpers."
+    },
+    {
+      "name": "Local markdown/html evidence links resolve",
+      "passed": true,
+      "detail": "3 local links checked; missing=[]."
+    }
+  ],
+  "overall_pass": true
+}

@@ -6,6 +6,7 @@ evidence/downloads/Codex.dmg
 .evidence-cache/
 .gjc/state/
 .gjc/reports/
+.gjc/_session-*/
 
 # local wrapper checkout gitlinks / generated screenshot captures
 evidence/codex-linux-wrapper
