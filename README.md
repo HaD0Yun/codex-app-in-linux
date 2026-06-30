@@ -10,6 +10,7 @@
 
 <p align="center">
   <a href="reports/final-validation.md">Validation report</a> ·
+  <a href="reports/multi-model-selection-first-pass.md">Multi-model first pass</a> ·
   <a href="evidence/build/build-info.json">Build info</a> ·
   <a href="evidence/gui/webview-smoke-result.txt">Smoke test</a>
 </p>
@@ -22,6 +23,16 @@
 OpenAI ships the Codex desktop app for macOS and Windows. Linux is officially supported through Codex CLI, not a native desktop app. This repo documents a working Linux proof using an unofficial wrapper build that converts the upstream macOS `Codex.dmg` into a Linux Electron app.
 
 Tested on Ubuntu 24.04.4 LTS / GNOME Wayland / x64.
+
+## Multi-model selection first pass
+
+This repo includes a non-invasive first-pass path for local multi-model selection: the earlier OpenCodex `10100` guidance is superseded by a CLIProxyAPI data-plane proxy on `127.0.0.1:8317`, with privileged management kept behind the bridge/BFF and wrapper-owned bubble path. Codex config points at that loopback data plane with a custom `model_provider`.
+
+```bash
+python3 scripts/codex-multi-model-config.py --model cliproxyapi/default --print-env
+```
+
+See `reports/multi-model-selection-first-pass.md` for the full flow and safety constraints.
 
 ## Result
 
@@ -101,6 +112,7 @@ PY
 ```text
 reports/final-validation.md              Main validation report
 reports/worker-*-wrapper-audit.md        Audit notes
+reports/multi-model-selection-first-pass.md First-pass proxy/config model selection notes
 evidence/build/build-info.json           Generated app metadata
 evidence/build/patch-report.json         Wrapper patch report
 evidence/reports/wrapper-latest-compat.patch Local wrapper compatibility diff

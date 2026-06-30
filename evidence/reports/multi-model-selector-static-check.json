@@ -1,0 +1,51 @@
+{
+  "generated_at": "2026-06-30T09:37:00Z",
+  "scope": "Lane B static verification for CLIProxyAPI first-pass multi-model selector direction in worker-2 worktree",
+  "credential_free": true,
+  "native_install_or_service_flows_run": false,
+  "generated_app_or_proprietary_artifacts_required": false,
+  "files_checked": [
+    "README.md",
+    "reports/multi-model-selection-first-pass.md",
+    "reports/multi-model-selector-verification.md",
+    "scripts/codex-multi-model-config.py",
+    "tests/test_codex_multi_model_config.py"
+  ],
+  "multi_model_terms_found_in_checked_docs": {
+    "CLIProxyAPI": true,
+    "127.0.0.1:8317": true,
+    "bridge/BFF": true,
+    "bubble path": true,
+    "OpenCodex 10100 superseded": true,
+    "model-provider": true,
+    "multi-model": true
+  },
+  "checks": [
+    {
+      "name": "Helper defaults to CLIProxyAPI data plane",
+      "passed": true,
+      "detail": "Default provider/model/base_url/env_key are cliproxyapi, cliproxyapi/default, http://127.0.0.1:8317/v1, and CLIPROXYAPI_PROXY_CLIENT_KEY."
+    },
+    {
+      "name": "Helper separates data-plane and management keys",
+      "passed": true,
+      "detail": "CLIPROXYAPI_MANAGEMENT_KEY is refused as a Codex data-plane env_key."
+    },
+    {
+      "name": "Helper dry-run and append behavior covered",
+      "passed": true,
+      "detail": "Unit tests verify dry-run target preservation, append write, and duplicate append refusal."
+    },
+    {
+      "name": "Docs supersede OpenCodex 10100 guidance",
+      "passed": true,
+      "detail": "README and first-pass report point to CLIProxyAPI 8317 plus bridge/BFF and bubble path."
+    },
+    {
+      "name": "No live routing or credential claim",
+      "passed": true,
+      "detail": "Verification does not require live CLIProxyAPI credentials, generated app bundles, or proprietary artifacts."
+    }
+  ],
+  "overall_pass": true
+}

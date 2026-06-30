@@ -1,0 +1,114 @@
+{
+  "generated_at": "2026-06-30T09:39:00Z",
+  "lane": "lane-a-helper-docs",
+  "credential_free": true,
+  "commands_passed": [
+    "python3 -m py_compile scripts/codex-multi-model-config.py tests/test_codex_multi_model_config.py",
+    "python3 -m unittest tests.test_codex_multi_model_config",
+    "python3 scripts/codex-multi-model-config.py --append /tmp/cliproxyapi-codex-config.toml --dry-run --print-env"
+  ],
+  "files_checked": [
+    "README.md",
+    "scripts/codex-multi-model-config.py",
+    "reports/multi-model-selection-first-pass.md",
+    "reports/multi-model-selector-architecture.md",
+    "reports/multi-model-selector-verification.md",
+    "tests/test_codex_multi_model_config.py"
+  ],
+  "checks": [
+    {
+      "name": "README.md contains CLIProxyAPI",
+      "passed": true
+    },
+    {
+      "name": "README.md contains http://127.0.0.1:8317/v1",
+      "passed": true
+    },
+    {
+      "name": "README.md contains bridge/BFF",
+      "passed": true
+    },
+    {
+      "name": "README.md contains wrapper-owned bubble",
+      "passed": true
+    },
+    {
+      "name": "scripts/codex-multi-model-config.py contains DEFAULT_BASE_URL = \"http://127.0.0.1:8317/v1\"",
+      "passed": true
+    },
+    {
+      "name": "scripts/codex-multi-model-config.py contains CLIPROXYAPI_CLIENT_API_KEY",
+      "passed": true
+    },
+    {
+      "name": "scripts/codex-multi-model-config.py contains CLIPROXYAPI_MANAGEMENT_KEY",
+      "passed": true
+    },
+    {
+      "name": "scripts/codex-multi-model-config.py contains --dry-run",
+      "passed": true
+    },
+    {
+      "name": "reports/multi-model-selection-first-pass.md contains CLIProxyAPI-backed",
+      "passed": true
+    },
+    {
+      "name": "reports/multi-model-selection-first-pass.md contains CLIPROXYAPI_CLIENT_API_KEY",
+      "passed": true
+    },
+    {
+      "name": "reports/multi-model-selection-first-pass.md contains CLIPROXYAPI_MANAGEMENT_KEY",
+      "passed": true
+    },
+    {
+      "name": "reports/multi-model-selection-first-pass.md contains wrapper-owned bubble",
+      "passed": true
+    },
+    {
+      "name": "active old default absent: OpenCodex-style",
+      "passed": true,
+      "hits": []
+    },
+    {
+      "name": "active old default absent: LOCAL_RESPONSES_API_KEY",
+      "passed": true,
+      "hits": []
+    },
+    {
+      "name": "active old default absent: http://127.0.0.1:8787/v1",
+      "passed": true,
+      "hits": []
+    },
+    {
+      "name": "active old default absent: model_provider = \"opencodex\"",
+      "passed": true,
+      "hits": []
+    },
+    {
+      "name": "active old default absent: base_url = \"http://127.0.0.1:10100/v1\"",
+      "passed": true,
+      "hits": []
+    },
+    {
+      "name": "no secret-like literal sk-",
+      "passed": true,
+      "hits": []
+    },
+    {
+      "name": "no secret-like literal xoxb-",
+      "passed": true,
+      "hits": []
+    },
+    {
+      "name": "no secret-like literal ghp_",
+      "passed": true,
+      "hits": []
+    },
+    {
+      "name": "no secret-like literal CLIPROXYAPI_MANAGEMENT_KEY=",
+      "passed": true,
+      "hits": []
+    }
+  ],
+  "overall_pass": true
+}
